@@ -17,10 +17,16 @@ dependencies:
   intl: ^0.18.0
   page_transition: ^2.0.9
   qr_flutter: ^4.0.0
+  flutter_launcher_icons: ^0.12.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/visitor_power_icon.png"
 
   flutter_lints: ^2.0.0
 

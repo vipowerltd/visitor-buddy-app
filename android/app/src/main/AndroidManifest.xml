@@ -1,9 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="vipower.visitorpower.buddy.visitor_power_buddy">
    <application
-        android:label="visitor_power_buddy"
+        android:label="VisitorPower Buddy"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/launcher_icon">
         <activity
             android:name=".MainActivity"
             android:exported="true"

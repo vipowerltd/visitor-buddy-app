@@ -461,27 +461,22 @@ void showModal(BuildContext context, bool returned) {
                           ),
                           const Divider(),
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  InkWell(
-                                    onTap: () {
-                                      _enableEditing();
-                                    },
-                                    child: Icon(Icons.settings, color: mainColour, size: 40,),
-                                  ),
-                                  InkWell(
-                                    onTap: () {
-                                      _deleteBooking();
-                                    },
-                                    child: Text(
-                                      'Delete Booking',
-                                      style: formHintText,
-                                    ),
-                                  )
-                                ],
+                              InkWell(
+                                onTap: () {
+                                  _enableEditing();
+                                },
+                                child: Icon(Icons.settings, color: mainColour, size: 40,),
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  _deleteBooking();
+                                },
+                                child: Text(
+                                  'Delete Booking',
+                                  style: formHintText,
+                                ),
                               )
                             ],
                           ),

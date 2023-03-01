@@ -49,6 +49,7 @@ class _MyHomePageState extends State<LoginPage> {
           TextFormField(
             decoration: textFormStyle('Email Address'),
             controller: emailTextController,
+            keyboardType: TextInputType.emailAddress,
           ),
           SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
           Row(
@@ -72,6 +73,7 @@ class _MyHomePageState extends State<LoginPage> {
           TextFormField(
             decoration: textFormStyle('Password'),
             controller: passwordTextController,
+            obscureText: true,
           ),
           SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
           InkWell(
