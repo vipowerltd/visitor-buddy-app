@@ -461,3 +461,7 @@ void _guestSubmission() {
 
 //TODO
 //________________________
+//Form validation and interactivity is in a good spot
+//
+//Need to compile the input data on the confirmation dialog into a guest model and
+//send to the database as a future pre-registered guest

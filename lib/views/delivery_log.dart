@@ -414,4 +414,10 @@ void _closeDeliveryModal(BuildContext context) {
 
 //TODO
 //________________________
-//Create delivery cards for claimed and unclaimed deliveries
+//Retrieve all delivery data from the database
+//
+//Properly filter delivery results based on the selected DateTime
+//
+//The QR code displayed on unclaimed deliveries should encrypt a string taken
+//from the database for that delivery. The user will need to validate the QR code
+//shown when they want to collect their item.

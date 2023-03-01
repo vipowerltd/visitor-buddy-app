@@ -424,4 +424,21 @@ void _seeRecentDeliveries() {
 
 //TODO
 //________________________
+//USER BLOCK
+// - The user widget at the top right of the page should display the logged in
+//   user's name + display photo retrieved from the database
 //
+//STATISTICS BLOCK
+// - Update numbers displayed with the correct corresponding count from the database
+//
+//TODAY'S VISITORS/ UPCOMING VISITORS
+// - Convert to ListView to hold more than one entry
+// - Retrieve the list of visitor's dated to arrive today or in the future on page load and render them in a list
+//
+//RECENT DELIVERIES
+// - Display 2/3 most recent deliveries made for this user from the database.
+// - Elements of this widget change based on whether the delivery is already claimed or not
+//
+//SEE ALL
+// - See all buttons will need to redirect to either their respective log pages, or generate a list of only
+//   what has been clicked on

@@ -496,4 +496,12 @@ void showModal(BuildContext context, bool returned) {
 
 //TODO
 //________________________
+//Retrieve booking data from the database and populate the listviews appropriately.
 //
+//Implement proper filtered search based on selected date and input booking name.
+//
+//Implement booking editing for upcoming bookings. Clicking Cogwheel icon should
+//enable editing for each piece of data. Cogwheel icon swaps into a Checkmark
+//icon which attempts to commit changes when pressed again.
+//
+//Implement process for deleting this booking, raise an alert dialog to confirm intent.

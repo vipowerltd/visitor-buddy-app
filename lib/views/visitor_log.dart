@@ -458,4 +458,11 @@ void showModal(BuildContext context, bool returned) {
 
 //TODO
 //________________________
+//Need to retrieve all visitors details from the database for this user.
+//
+//Need to differentiate the design of the All Visitors cards to distinguish them
+//from the active visitors cards.
+//
+//Need to implement working filtered search based on both DateTime + Visitor Name.
+//
 //

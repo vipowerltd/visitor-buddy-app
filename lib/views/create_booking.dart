@@ -205,4 +205,11 @@ void _validateForm() {
 
 //TODO
 //________________________
+//Retrieve meeting room data from the database
+// - Convert meeting room names from String into DropdownMenuItems so they can be used in the dropdown menu.
 //
+//Implement date/time pickers properly in their respective fields.
+//
+//Create a method to validate each field on Confirm pressed.
+//
+//Display input data arranged in a Modal for final confirmation of booking.
