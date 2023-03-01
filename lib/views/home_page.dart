@@ -151,7 +151,12 @@ class _MyHomePageState extends State<HomePage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Icon(Icons.account_balance_wallet_rounded, color: Colors.white, size: 40,),
+              Container(
+                height: 30,
+                child: Image(
+                  image: AssetImage('assets/images/package_white.png'),
+                ),
+              ),
               Text(
                 tpCount,
                 style: titleHeadTextWhiteBold,
@@ -346,7 +351,12 @@ class _MyHomePageState extends State<HomePage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          const Icon(Icons.local_shipping_outlined, size: 40, color: Colors.white,),
+          Container(
+            height: 30,
+            child: Image(
+              image: AssetImage('assets/images/package_white.png'),
+            ),
+          ),
           const SizedBox(width: 12.0,),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,

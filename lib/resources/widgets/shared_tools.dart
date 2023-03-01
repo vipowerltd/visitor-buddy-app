@@ -3,6 +3,7 @@ import 'package:visitor_power_buddy/resources/styles/colours.dart';
 import 'package:visitor_power_buddy/resources/styles/textstyles.dart';
 
 void showSnackBar(BuildContext context, String content) {
+  ScaffoldMessenger.of(context).clearSnackBars();
   ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         padding: const EdgeInsets.all(12.0),

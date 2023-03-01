@@ -6,6 +6,7 @@ import 'package:visitor_power_buddy/views/forgot_password.dart';
 import 'package:visitor_power_buddy/views/home_page.dart';
 import 'package:visitor_power_buddy/resources/styles/colours.dart';
 import 'package:visitor_power_buddy/resources/styles/formstyles.dart';
+import 'package:visitor_power_buddy/views/register_account.dart';
 
 import '../resources/styles/textstyles.dart';
 
@@ -104,7 +105,7 @@ class _MyHomePageState extends State<LoginPage> {
               ),
               InkWell(
                 onTap: () {
-                  _createAccount();
+                  _createAccount(context);
                 },
                 child: Text(
                   'Create Account',
@@ -160,8 +161,15 @@ void _login(BuildContext context) {
   );
 }
 
-void _createAccount() {
+void _createAccount(BuildContext context) {
   log('Tapped Create Account');
+  Navigator.push(
+    context,
+    PageTransition(
+      type: PageTransitionType.leftToRight,
+      child: const RegisterAccount(),
+    ),
+  );
 }
 
 
