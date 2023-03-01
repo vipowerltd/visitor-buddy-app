@@ -505,3 +505,5 @@ void showModal(BuildContext context, bool returned) {
 //icon which attempts to commit changes when pressed again.
 //
 //Implement process for deleting this booking, raise an alert dialog to confirm intent.
+//
+//Opening Booking details Modal causes overflow on smaller display sizes -- NEEDS FIX

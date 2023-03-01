@@ -465,4 +465,4 @@ void showModal(BuildContext context, bool returned) {
 //
 //Need to implement working filtered search based on both DateTime + Visitor Name.
 //
-//
+//Opening Visitor details Modal on smaller display sizes causes overflow -- NEEDS FIX

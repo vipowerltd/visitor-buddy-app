@@ -421,3 +421,5 @@ void _closeDeliveryModal(BuildContext context) {
 //The QR code displayed on unclaimed deliveries should encrypt a string taken
 //from the database for that delivery. The user will need to validate the QR code
 //shown when they want to collect their item.
+//
+//Displaying the QR code modal on smaller display sizes causes overflow -- NEEDS FIX
