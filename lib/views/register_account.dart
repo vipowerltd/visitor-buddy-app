@@ -18,6 +18,8 @@ class _RegisterAccountState extends State<RegisterAccount> {
   TextEditingController fullNameController = TextEditingController();
   TextEditingController emailAddressController = TextEditingController();
   TextEditingController tenantIDController = TextEditingController();
+  TextEditingController pw1Controller = TextEditingController();
+  TextEditingController pw2Controller = TextEditingController();
 
   Widget logoHead() {
     return const Padding(
@@ -32,7 +34,7 @@ class _RegisterAccountState extends State<RegisterAccount> {
 
   Widget registrationForm() {
     return Padding(
-      padding: const EdgeInsets.all(48.0),
+      padding: const EdgeInsets.only(left: 48.0, right: 48.0, bottom: 48.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -65,6 +67,26 @@ class _RegisterAccountState extends State<RegisterAccount> {
             controller: emailAddressController,
             keyboardType: TextInputType.emailAddress,
           ),
+          SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
+          Text(
+            'Password',
+            style: fieldHeadTextWhite,
+          ),
+          TextFormField(
+            decoration: textFormStyle('Password'),
+            controller: pw1Controller,
+            obscureText: true,
+          ),
+          SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
+          Text(
+            'Confirm Password',
+            style: fieldHeadTextWhite,
+          ),
+          TextFormField(
+            decoration: textFormStyle('Confirm Password'),
+            controller: pw2Controller,
+            obscureText: true,
+          ),
           SizedBox(height: MediaQuery.of(context).size.height * 0.015,),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -83,7 +105,7 @@ class _RegisterAccountState extends State<RegisterAccount> {
           ),
           TextFormField(
             decoration: textFormStyle('Tenant ID'),
-            controller: emailAddressController,
+            controller: tenantIDController,
           ),
           SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
           InkWell(
