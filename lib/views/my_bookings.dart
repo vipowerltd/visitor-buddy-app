@@ -9,6 +9,7 @@ import '../resources/styles/formstyles.dart';
 import '../resources/widgets/drawer.dart';
 import '../resources/widgets/user.dart';
 import 'create_booking.dart';
+double opacity = 0.0;
 
 class MyBookings extends StatefulWidget {
   const MyBookings({super.key,});
@@ -19,6 +20,16 @@ class MyBookings extends StatefulWidget {
 
 class _MyBookingsState extends State<MyBookings> {
   GlobalKey<ScaffoldState> drawerKey = GlobalKey<ScaffoldState>();
+
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        opacity = 1.0;
+      });
+    });
+    super.initState();
+  }
 
   Widget headRow() {
     return Padding(
@@ -310,8 +321,8 @@ class _MyBookingsState extends State<MyBookings> {
           children: [
             headRow(),
             pageTitle(),
-            upcomingBookings(),
-            previousBookings()
+            animateOpacity(upcomingBookings()),
+            animateOpacity(previousBookings()),
           ],
         ),
       ),
@@ -360,6 +371,15 @@ void _enableEditing() {
 
 void _deleteBooking() {
   log('Tapped to delete booking!');
+}
+
+//Opacity animation widget
+Widget animateOpacity(Widget child) {
+  return AnimatedOpacity(
+    opacity: opacity,
+    duration: const Duration(milliseconds: 500),
+    child: child,
+  );
 }
 
 //Modal Menu

@@ -8,6 +8,7 @@ import '../resources/styles/colours.dart';
 import '../resources/styles/formstyles.dart';
 import '../resources/widgets/drawer.dart';
 import '../resources/widgets/user.dart';
+double opacity = 0.0;
 
 class DeliveryLog extends StatefulWidget {
   const DeliveryLog({super.key,});
@@ -18,6 +19,16 @@ class DeliveryLog extends StatefulWidget {
 
 class _DeliveryLogState extends State<DeliveryLog> {
   GlobalKey<ScaffoldState> drawerKey = GlobalKey<ScaffoldState>();
+
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        opacity = 1.0;
+      });
+    });
+    super.initState();
+  }
 
   List<Widget> unclaimedDeliveriesList = [];
   List<Widget> allDeliveriesList = [];
@@ -387,8 +398,8 @@ class _DeliveryLogState extends State<DeliveryLog> {
           children: [
             headRow(),
             pageTitle(),
-            unclaimedDeliveries(),
-            allDeliveries(),
+            animateOpacity(unclaimedDeliveries()),
+            animateOpacity(allDeliveries()),
           ],
         ),
       ),
@@ -396,6 +407,14 @@ class _DeliveryLogState extends State<DeliveryLog> {
   }
 }
 
+//Opacity animation widget
+Widget animateOpacity(Widget child) {
+  return AnimatedOpacity(
+    opacity: opacity,
+    duration: const Duration(milliseconds: 500),
+    child: child,
+  );
+}
 
 
 //Methods for page functionality

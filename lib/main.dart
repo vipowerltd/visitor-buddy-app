@@ -3,6 +3,7 @@ import 'package:visitor_power_buddy/views/forgot_password.dart';
 import 'package:visitor_power_buddy/views/guest_pre_registration.dart';
 import 'package:visitor_power_buddy/views/home_page.dart';
 import 'package:visitor_power_buddy/views/login_page.dart';
+import 'package:visitor_power_buddy/views/splash_screen.dart';
 import 'package:visitor_power_buddy/views/visitor_log.dart';
 import 'package:visitor_power_buddy/resources/styles/colours.dart';
 

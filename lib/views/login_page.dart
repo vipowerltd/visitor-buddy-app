@@ -20,102 +20,146 @@ class LoginPage extends StatefulWidget {
 class _MyHomePageState extends State<LoginPage> {
   TextEditingController passwordTextController = TextEditingController();
   TextEditingController emailTextController = TextEditingController();
+  double startPos = 0.0;
+  double endPosFields = 0.0;
+  double endPosTitle = 0.0;
+  bool tapped = false;
 
   Widget logoHead() {
-    return const Padding(
-      padding: EdgeInsets.all(48.0),
-      child: Center(
-        child: Image(
-          image: AssetImage('assets/images/visitor_power_logo.png'),
+    return TweenAnimationBuilder(
+        tween: Tween<Offset>(begin: Offset(0, startPos), end: Offset(0, endPosTitle),),
+        curve: Curves.easeIn,
+        duration: const Duration(milliseconds: 200),
+        builder: (context, offset, child) {
+          return FractionalTranslation(
+            translation: offset,
+            child: child,
+          );
+        },
+        child: const Padding(
+          padding: EdgeInsets.all(48.0),
+          child: Center(
+            child: Image(
+              image: AssetImage('assets/images/visitor_power_logo.png'),
+            ),
+          ),
         ),
-      ),
     );
   }
 
   Widget loginFields() {
-    return Padding(
-      padding: const EdgeInsets.all(48.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Login',
-            style: titleHeadText,
-          ),
-          SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
-          Text(
-            'Email Address',
-            style: fieldHeadText,
-          ),
-          TextFormField(
-            decoration: textFormStyle('Email Address'),
-            controller: emailTextController,
-            keyboardType: TextInputType.emailAddress,
-          ),
-          SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Password',
-                style: fieldHeadText,
-              ),
-              InkWell(
-                onTap: () {
-                  _forgotPassword(context);
-                },
-                child: Text(
-                  'Forgot Password?',
-                  style: hyperLinkText,
-                ),
-              )
-            ],
-          ),
-          TextFormField(
-            decoration: textFormStyle('Password'),
-            controller: passwordTextController,
-            obscureText: true,
-          ),
-          SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
-          InkWell(
-            onTap: () {
-              _login(context);
-            },
-            child: Container(
-              width: double.infinity, height: 50,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(5),
-                color: mainColour
-              ),
-              child: Center(
-                child: Text(
+
+    return TweenAnimationBuilder(
+        tween: Tween<Offset>(begin: Offset(0, startPos), end: Offset(0, endPosFields),),
+        curve: Curves.easeIn,
+        duration: const Duration(milliseconds: 250),
+        builder: (context, offset, child) {
+          return FractionalTranslation(
+            translation: offset,
+            child: child,
+          );
+        },
+        onEnd: () {
+          if (tapped) {
+            _login(context);
+
+            //This needs to happen when returning to this page with device back button
+            setState(() {
+              tapped = false;
+              endPosFields = 0.0;
+              endPosTitle = 0.0;
+            });
+          }
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(48.0),
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
                   'Login',
-                  style: buttonText,
+                  style: titleHeadText,
                 ),
-              ),
-            ),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
+                Text(
+                  'Email Address',
+                  style: fieldHeadText,
+                ),
+                TextFormField(
+                  decoration: textFormStyle('Email Address'),
+                  controller: emailTextController,
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Password',
+                      style: fieldHeadText,
+                    ),
+                    InkWell(
+                      onTap: () {
+                        _forgotPassword(context);
+                      },
+                      child: Text(
+                        'Forgot Password?',
+                        style: hyperLinkText,
+                      ),
+                    )
+                  ],
+                ),
+                TextFormField(
+                  decoration: textFormStyle('Password'),
+                  controller: passwordTextController,
+                  obscureText: true,
+                ),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
+                InkWell(
+                  onTap: () {
+                    log('Tapped');
+                    setState(() {
+                      tapped = true;
+                      endPosFields = 2.0;
+                      endPosTitle = -2;
+                    });
+                  },
+                  child: Container(
+                    width: double.infinity, height: 50,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        color: mainColour
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Login',
+                        style: buttonText,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Don\'t have an account? ',
+                      style: fieldHeadText,
+                    ),
+                    InkWell(
+                      onTap: () {
+                        _createAccount(context);
+                      },
+                      child: Text(
+                        'Create Account',
+                        style: hyperLinkText,
+                      ),
+                    )
+                  ],
+                )
+              ]
           ),
-          SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Don\'t have an account? ',
-                style: fieldHeadText,
-              ),
-              InkWell(
-                onTap: () {
-                  _createAccount(context);
-                },
-                child: Text(
-                  'Create Account',
-                  style: hyperLinkText,
-                ),
-              )
-            ],
-          )
-        ]
-      ),
+        ),
     );
   }
 
@@ -155,7 +199,7 @@ void _login(BuildContext context) {
   Navigator.push(
     context,
     PageTransition(
-      type: PageTransitionType.leftToRight,
+      type: PageTransitionType.fade,
       child: const HomePage(),
     ),
   );

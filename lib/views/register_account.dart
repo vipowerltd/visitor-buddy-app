@@ -1,6 +1,8 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:visitor_power_buddy/api/account_creation_apis.dart';
+import 'package:visitor_power_buddy/models/user.dart';
 import 'package:visitor_power_buddy/resources/styles/colours.dart';
 import 'package:visitor_power_buddy/resources/styles/formstyles.dart';
 import 'package:visitor_power_buddy/resources/styles/textstyles.dart';
@@ -16,10 +18,15 @@ class RegisterAccount extends StatefulWidget {
 
 class _RegisterAccountState extends State<RegisterAccount> {
   TextEditingController fullNameController = TextEditingController();
+  FocusNode fnFN = FocusNode();
   TextEditingController emailAddressController = TextEditingController();
+  FocusNode eaFN = FocusNode();
   TextEditingController tenantIDController = TextEditingController();
+  FocusNode tidFN = FocusNode();
   TextEditingController pw1Controller = TextEditingController();
+  FocusNode pw1FN = FocusNode();
   TextEditingController pw2Controller = TextEditingController();
+  FocusNode pw2FN = FocusNode();
 
   Widget logoHead() {
     return const Padding(
@@ -55,6 +62,7 @@ class _RegisterAccountState extends State<RegisterAccount> {
           TextFormField(
             decoration: textFormStyle('Full Name'),
             controller: fullNameController,
+            focusNode: fnFN,
             keyboardType: TextInputType.name,
           ),
           SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
@@ -65,6 +73,7 @@ class _RegisterAccountState extends State<RegisterAccount> {
           TextFormField(
             decoration: textFormStyle('Email Address'),
             controller: emailAddressController,
+            focusNode: eaFN,
             keyboardType: TextInputType.emailAddress,
           ),
           SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
@@ -75,6 +84,7 @@ class _RegisterAccountState extends State<RegisterAccount> {
           TextFormField(
             decoration: textFormStyle('Password'),
             controller: pw1Controller,
+            focusNode: pw1FN,
             obscureText: true,
           ),
           SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
@@ -85,6 +95,7 @@ class _RegisterAccountState extends State<RegisterAccount> {
           TextFormField(
             decoration: textFormStyle('Confirm Password'),
             controller: pw2Controller,
+            focusNode: pw2FN,
             obscureText: true,
           ),
           SizedBox(height: MediaQuery.of(context).size.height * 0.015,),
@@ -106,11 +117,12 @@ class _RegisterAccountState extends State<RegisterAccount> {
           TextFormField(
             decoration: textFormStyle('Tenant ID'),
             controller: tenantIDController,
+            focusNode: tidFN,
           ),
           SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
           InkWell(
             onTap: () {
-              _sendVerificationLink();
+              validateFields();
             },
             child: Container(
               width: double.infinity, height: 50,
@@ -129,6 +141,84 @@ class _RegisterAccountState extends State<RegisterAccount> {
         ],
       ),
     );
+  }
+
+  void validateFields() {
+    log('Tapped to validate form');
+    //Move this method to controllers file?
+    //
+    //Confirm that all fields have been interacted with and filled in
+    //Validate that input data is in the correct format
+    //
+    //Open Modal to display all input data compiled
+    if (fullNameController.text.isEmpty) {
+      //Show snackbar telling the user to fill the field, and auto focus the correct field
+      showSnackBar(context, 'Full name is required!');
+      FocusScope.of(context).requestFocus(fnFN);
+      return;
+    }
+    else if (emailAddressController.text.isEmpty) {
+      showSnackBar(context, 'Email Address is required!');
+      FocusScope.of(context).requestFocus(eaFN);
+      return;
+    }
+    else if (!emailValid(emailAddressController.text)) {
+      showSnackBar(context, 'You must enter a valid email address!');
+      FocusScope.of(context).requestFocus(eaFN);
+      return;
+    }
+    else if (pw1Controller.text.isEmpty) {
+      showSnackBar(context, 'Password is required!');
+      FocusScope.of(context).requestFocus(pw1FN);
+      return;
+    }
+    else if (pw2Controller.text.isEmpty) {
+      showSnackBar(context, 'Password is required!');
+      FocusScope.of(context).requestFocus(pw2FN);
+      return;
+    }
+    else if (pw2Controller.text != pw1Controller.text) {
+      showSnackBar(context, 'Passwords must match!');
+      FocusScope.of(context).requestFocus(pw1FN);
+      return;
+    }
+    else if (tenantIDController.text.isEmpty) {
+      showSnackBar(context, 'Tenant ID is required!');
+      FocusScope.of(context).requestFocus(tidFN);
+      return;
+    }
+
+    callAddUserAPI();
+
+  }
+
+  //Consult the other registration form you made where verification refocuses to the empty field
+  void callAddUserAPI() async {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Center(child: const CircularProgressIndicator(),);
+        }
+    );
+
+    String fullName = fullNameController.text;
+    String email = emailAddressController.text;
+    String password = pw1Controller.text;
+    int tenant_id = int.parse(tenantIDController.text);
+
+    User user = User(
+        user_id: 222222, email: email,
+        password: password, user_type: 'user',
+        created_by: 111111, created_on: DateTime.now(),
+        updated_on: DateTime.now(), last_login: DateTime.now(),
+        image_url: '', status: true,
+        is_first_login: true, reset_code: '',
+        tenant_id: tenant_id, building_id: 223344,
+        account_id: 112233
+    );
+
+    await addUser(user);
+    Navigator.pop(context);
   }
 
   @override

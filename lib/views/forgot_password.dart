@@ -15,6 +15,7 @@ class ForgotPasswordPage extends StatefulWidget {
 class _MyHomePageState extends State<ForgotPasswordPage> {
   TextEditingController pw1TextController = TextEditingController();
   TextEditingController pw2TextController = TextEditingController();
+  bool sent = false;
 
   Widget logoHead() {
     return const Padding(
@@ -101,6 +102,9 @@ class _MyHomePageState extends State<ForgotPasswordPage> {
           SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
           InkWell(
             onTap: () {
+              setState(() {
+                sent = !sent;
+              });
               _sendVerificationLink();
             },
             child: Container(
@@ -122,6 +126,14 @@ class _MyHomePageState extends State<ForgotPasswordPage> {
     );
   }
 
+  Widget activeWidget() {
+    if (!sent) {
+      return verifyEmail();
+    } else {
+      return resetPassword();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -133,8 +145,7 @@ class _MyHomePageState extends State<ForgotPasswordPage> {
         child: ListView(
           children: [
             logoHead(),
-            //resetPassword(),
-            verifyEmail()
+            activeWidget(),
           ],
         ),
       ),

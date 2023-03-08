@@ -28,6 +28,8 @@ class _MyHomePageState extends State<HomePage> {
   //----------------------------------------------------------------------------
 
   GlobalKey<ScaffoldState> drawerKey = GlobalKey<ScaffoldState>();
+  bool anim = false;
+  Duration animDuration = const Duration(milliseconds: 250);
 
   Widget headRow() {
     return Padding(
@@ -169,88 +171,117 @@ class _MyHomePageState extends State<HomePage> {
   }
 
   Widget statisticsBlock() {
-    return Padding(
-      padding: const EdgeInsets.only(left: 24.0, right: 24.0),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Flexible(
-                flex: 1,
-                child: upcomingVisitorsBlock(),
-              ),
-              const SizedBox(width: 12.0,),
-              Flexible(
-                flex: 1,
-                child: totalVisitorsBlock(),
-              )
-            ],
-          ),
-          const SizedBox(height: 12.0),
-          totalParcelsBlock(),
-        ],
+    //This block animates on screen from the right
+    //On ending it triggers the remaining animations to begin
+
+    double startPos = -1;
+    double endPos = 0;
+
+    return TweenAnimationBuilder(
+      tween: Tween<Offset>(begin: Offset(startPos, 0), end: Offset(endPos, 0),),
+      duration: animDuration,
+      builder: (context, offset, child) {
+        return FractionalTranslation(
+          translation: offset,
+          child: child,
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.only(left: 24.0, right: 24.0),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Flexible(
+                  flex: 1,
+                  child: upcomingVisitorsBlock(),
+                ),
+                const SizedBox(width: 12.0,),
+                Flexible(
+                  flex: 1,
+                  child: totalVisitorsBlock(),
+                )
+              ],
+            ),
+            const SizedBox(height: 12.0),
+            totalParcelsBlock(),
+          ],
+        ),
       ),
+      onEnd: () {
+        setState(() {
+          anim = true;
+        });
+      },
     );
   }
 
   Widget UVList() {
-    return Padding(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Upcoming Visitors',
-                style: titleHeadText,
-              ),
-              InkWell(
-                onTap: () {
-                  _seeUpcomingVisitors();
-                },
-                child: Text(
-                  'See All',
-                  style: titleHeadTextSmall,
+    return AnimatedOpacity(
+      opacity: anim? 1.0 : 0.0,
+      duration: animDuration,
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Upcoming Visitors',
+                  style: titleHeadText,
                 ),
-              )
-            ],
-          ),
-          const SizedBox(height: 12.0,),
-          visitorCard()
-        ],
+                InkWell(
+                  onTap: () {
+                    _seeUpcomingVisitors();
+                  },
+                  child: Text(
+                    'See All',
+                    style: titleHeadTextSmall,
+                  ),
+                )
+              ],
+            ),
+            const SizedBox(height: 12.0,),
+            visitorCard()
+          ],
+        ),
       ),
     );
   }
 
   Widget TVList() {
-    return Padding(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Today\'s Visitors',
-                style: titleHeadText,
-              ),
-              InkWell(
-                onTap: () {
-                  _seeTodayVisitors();
-                },
-                child: Text(
-                  'See All',
-                  style: titleHeadTextSmall,
+    return AnimatedOpacity(
+      opacity: anim? 1.0 : 0.0,
+      duration: animDuration,
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Today\'s Visitors',
+                  style: titleHeadText,
                 ),
-              )
-            ],
-          ),
-          const SizedBox(height: 12.0,),
-          visitorCard()
-        ],
+                InkWell(
+                  onTap: () {
+                    _seeTodayVisitors();
+                  },
+                  child: Text(
+                    'See All',
+                    style: titleHeadTextSmall,
+                  ),
+                )
+              ],
+            ),
+            const SizedBox(height: 12.0,),
+            visitorCard()
+          ],
+        ),
       ),
     );
   }
@@ -302,44 +333,56 @@ class _MyHomePageState extends State<HomePage> {
   }
 
   Widget recentDeliveriesList() {
-    return Container(
-      height: 200,
-      decoration: BoxDecoration(
-        gradient: blueGradientBack,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Recent Deliveries',
-                  style: titleHeadTextWhiteBold,
-                ),
-                InkWell(
-                  onTap: () {
-                    _seeRecentDeliveries();
-                  },
-                  child: Text(
-                    'See All',
-                    style: titleHeadTextWhiteSmall,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12.0),
-            Expanded(
-              child: ListView(
+    double startPos = 1;
+    double endPos = 0;
+    return TweenAnimationBuilder(
+      tween: Tween<Offset>(begin: Offset(0, startPos), end: Offset(0, endPos)),
+      duration: animDuration,
+      builder: (context, offset, child) {
+        return FractionalTranslation(
+          translation: offset,
+          child: child,
+        );
+      },
+      child: Container(
+        height: 200,
+        decoration: BoxDecoration(
+          gradient: blueGradientBack,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  deliveryRow(true),
-                  deliveryRow(false),
+                  Text(
+                    'Recent Deliveries',
+                    style: titleHeadTextWhiteBold,
+                  ),
+                  InkWell(
+                    onTap: () {
+                      _seeRecentDeliveries();
+                    },
+                    child: Text(
+                      'See All',
+                      style: titleHeadTextWhiteSmall,
+                    ),
+                  ),
                 ],
               ),
-            )
-          ],
+              const SizedBox(height: 12.0),
+              Expanded(
+                child: ListView(
+                  children: [
+                    deliveryRow(true),
+                    deliveryRow(false),
+                  ],
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

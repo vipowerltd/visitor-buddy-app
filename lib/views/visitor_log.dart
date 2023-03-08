@@ -18,6 +18,17 @@ class VisitorLogPage extends StatefulWidget {
 class _MyHomePageState extends State<VisitorLogPage> {
 
   GlobalKey<ScaffoldState> drawerKey = GlobalKey<ScaffoldState>();
+  double opacity = 0.0;
+
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        opacity = 1.0;
+      });
+    });
+    super.initState();
+  }
 
   Widget headRow() {
     return Padding(
@@ -63,33 +74,37 @@ class _MyHomePageState extends State<VisitorLogPage> {
   }
 
   Widget activeVisitorList() {
-    return Padding(
-      padding: const EdgeInsets.only(left: 24.0, right: 24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Active Visitors',
-                style: titleHeadText,
-              ),
-              InkWell(
-                onTap: () {
-                  _seeAllActiveVisitors();
-                },
-                child: Text(
-                  'See All',
-                  style: titleHeadTextSmall,
+    return AnimatedOpacity(
+      opacity: opacity,
+      duration: const Duration(milliseconds: 500),
+      child: Padding(
+        padding: const EdgeInsets.only(left: 24.0, right: 24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Active Visitors',
+                  style: titleHeadText,
                 ),
-              )
-            ],
-          ),
-          const SizedBox(height: 12.0,),
-          visitorCard(),
-          visitorCard()
-        ],
+                InkWell(
+                  onTap: () {
+                    _seeAllActiveVisitors();
+                  },
+                  child: Text(
+                    'See All',
+                    style: titleHeadTextSmall,
+                  ),
+                )
+              ],
+            ),
+            const SizedBox(height: 12.0,),
+            visitorCard(),
+            visitorCard(),
+          ],
+        ),
       ),
     );
   }
@@ -198,47 +213,51 @@ class _MyHomePageState extends State<VisitorLogPage> {
   }
 
   Widget allVisitorsList() {
-    return Padding(
-      padding: const EdgeInsets.only(left: 24.0, right: 24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'All Visitors',
-                style: titleHeadText,
-              ),
-              InkWell(
-                onTap: () {
-                  _seeAllVisitors();
-                },
-                child: Text(
-                  'See All',
-                  style: titleHeadTextSmall,
-                ),
-              )
-            ],
-          ),
-          const SizedBox(height: 12.0,),
-          visitorSearch(),
-          const SizedBox(height: 12.0,),
-          Container(
-            color: appBackgroundColour,
-            height: MediaQuery.of(context).size.height * 0.35,
-            child: ListView(
+    return AnimatedOpacity(
+      opacity: opacity,
+      duration: const Duration(milliseconds: 500),
+      child: Padding(
+        padding: const EdgeInsets.only(left: 24.0, right: 24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                visitorCard(),
-                visitorCard(),
-                visitorCard(),
-                visitorCard(),
-                visitorCard(),
-                visitorCard(),
+                Text(
+                  'All Visitors',
+                  style: titleHeadText,
+                ),
+                InkWell(
+                  onTap: () {
+                    _seeAllVisitors();
+                  },
+                  child: Text(
+                    'See All',
+                    style: titleHeadTextSmall,
+                  ),
+                )
               ],
             ),
-          )
-        ],
+            const SizedBox(height: 12.0,),
+            visitorSearch(),
+            const SizedBox(height: 12.0,),
+            Container(
+              color: appBackgroundColour,
+              height: MediaQuery.of(context).size.height * 0.35,
+              child: ListView(
+                children: [
+                  visitorCard(),
+                  visitorCard(),
+                  visitorCard(),
+                  visitorCard(),
+                  visitorCard(),
+                  visitorCard(),
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
