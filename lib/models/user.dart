@@ -12,8 +12,8 @@ class User {
   final bool is_first_login;
   final String? reset_code;
   final int tenant_id;
-  final int building_id;
-  final int account_id;
+  final int? building_id;
+  final int? account_id;
 
 
   User({
@@ -60,7 +60,7 @@ class User {
     'is_first_login': is_first_login,
     'reset_code': reset_code,
     'tenant_id': tenant_id,
-    'building_id': building_id,
-    'account_id': account_id,
+    'building_id': building_id == null? null : building_id,
+    'account_id': account_id == null? null : account_id,
   };
 }

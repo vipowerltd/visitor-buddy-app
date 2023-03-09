@@ -1,7 +1,10 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:visitor_power_buddy/api/account_management_apis.dart';
+import 'package:visitor_power_buddy/resources/widgets/shared_tools.dart';
 import 'package:visitor_power_buddy/views/forgot_password.dart';
 import 'package:visitor_power_buddy/views/home_page.dart';
 import 'package:visitor_power_buddy/resources/styles/colours.dart';
@@ -61,8 +64,6 @@ class _MyHomePageState extends State<LoginPage> {
         },
         onEnd: () {
           if (tapped) {
-            _login(context);
-
             //This needs to happen when returning to this page with device back button
             setState(() {
               tapped = false;
@@ -116,8 +117,14 @@ class _MyHomePageState extends State<LoginPage> {
                 ),
                 SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
                 InkWell(
-                  onTap: () {
-                    log('Tapped');
+                  onTap: () async {
+                    if (emailTextController.text.isEmpty || passwordTextController.text.isEmpty) {
+                      showSnackBar(context, 'Both fields must be filled!');
+                      return;
+                    }
+
+                    _login(context, emailTextController.text, encryptPassword(passwordTextController.text));
+
                     setState(() {
                       tapped = true;
                       endPosFields = 2.0;
@@ -193,16 +200,25 @@ void _forgotPassword(BuildContext context) {
   );
 }
 
-void _login(BuildContext context) {
-  log('Tapped Login, for now it will simply redirect to the home page. Later will'
-      'need to add in account verification and saving authentication token');
-  Navigator.push(
-    context,
-    PageTransition(
-      type: PageTransitionType.fade,
-      child: const HomePage(),
-    ),
-  );
+void _login(BuildContext context, String email, String password) async {
+  loadingDialog(context);
+  Response result = await validateLogin(email, password);
+
+  if (result.body.contains('Success')) {
+    Navigator.pop(context);
+    Navigator.push(
+      context,
+      PageTransition(
+        type: PageTransitionType.fade,
+        child: const HomePage(),
+      ),
+    );
+  }
+  else {
+    Navigator.pop(context);
+    showSnackBar(context, 'Login failed!');
+  }
+  
 }
 
 void _createAccount(BuildContext context) {

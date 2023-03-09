@@ -1,13 +1,16 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:visitor_power_buddy/api/account_creation_apis.dart';
+import 'package:page_transition/page_transition.dart';
+import 'package:visitor_power_buddy/api/account_management_apis.dart';
+import 'package:visitor_power_buddy/api/env.dart';
 import 'package:visitor_power_buddy/models/user.dart';
 import 'package:visitor_power_buddy/resources/styles/colours.dart';
 import 'package:visitor_power_buddy/resources/styles/formstyles.dart';
 import 'package:visitor_power_buddy/resources/styles/textstyles.dart';
 
 import '../resources/widgets/shared_tools.dart';
+import 'login_page.dart';
 
 class RegisterAccount extends StatefulWidget {
   const RegisterAccount({super.key,});
@@ -203,22 +206,31 @@ class _RegisterAccountState extends State<RegisterAccount> {
 
     String fullName = fullNameController.text;
     String email = emailAddressController.text;
-    String password = pw1Controller.text;
+    String password = encryptPassword(pw1Controller.text);
     int tenant_id = int.parse(tenantIDController.text);
 
     User user = User(
-        user_id: 222222, email: email,
+        user_id: generateRandomString(), email: email,
         password: password, user_type: 'user',
         created_by: 111111, created_on: DateTime.now(),
         updated_on: DateTime.now(), last_login: DateTime.now(),
         image_url: '', status: true,
         is_first_login: true, reset_code: '',
-        tenant_id: tenant_id, building_id: 223344,
-        account_id: 112233
+        tenant_id: tenant_id, building_id: null,
+        account_id: null
     );
 
-    await addUser(user);
-    Navigator.pop(context);
+    var response = await addUser(user);
+
+    if (response.body.contains('tenant_id does not match') ) {
+      _accountCreationFailure(context, tidFN, 'No matching tenant ID found!');
+    }
+    else if (response.body.contains('tenant_id is already used')) {
+      _accountCreationFailure(context, tidFN, 'Account already created with this tenant ID!');
+    }
+    else {
+      _accountCreationSuccess(context);
+    }
   }
 
   @override
@@ -240,7 +252,23 @@ class _RegisterAccountState extends State<RegisterAccount> {
   }
 }
 
+void _accountCreationSuccess(BuildContext context) {
+  Navigator.pop(context);
+  showSnackBar(context, 'Account created!');
+  Navigator.push(
+    context,
+    PageTransition(
+      type: PageTransitionType.leftToRight,
+      child: const LoginPage(),
+    ),
+  );
+}
 
+void _accountCreationFailure(BuildContext context, FocusNode tidFN, String reason) {
+  Navigator.pop(context);
+  showSnackBar(context, reason);
+  FocusScope.of(context).requestFocus(tidFN);
+}
 
 //Methods for page functionality
 void _resetPassword() {
@@ -255,6 +283,7 @@ void _showTenantIDInfo(BuildContext context) {
   showSnackBar(context, 'Your tenant ID links your account on the VisitorPower buddy app with your tenant information stored in your building. '
       'Ask at reception in your building to receive it!');
 }
+
 
 
 //TODO
