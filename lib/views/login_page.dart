@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:visitor_power_buddy/api/account_management_apis.dart';
+import 'package:visitor_power_buddy/api/env.dart';
 import 'package:visitor_power_buddy/resources/widgets/shared_tools.dart';
 import 'package:visitor_power_buddy/views/forgot_password.dart';
 import 'package:visitor_power_buddy/views/home_page.dart';
@@ -205,6 +206,9 @@ void _login(BuildContext context, String email, String password) async {
   Response result = await validateLogin(email, password);
 
   if (result.body.contains('Success')) {
+    //Take the returned user_id and save it to the global variable
+    userID = result.body.split(':')[0];
+    log(userID);
     Navigator.pop(context);
     Navigator.push(
       context,
