@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:visitor_power_buddy/api/visitor_apis.dart';
 import 'package:visitor_power_buddy/resources/styles/colours.dart';
 import 'package:visitor_power_buddy/resources/styles/textstyles.dart';
 import 'package:visitor_power_buddy/resources/widgets/drawer.dart';
@@ -116,9 +117,18 @@ class _MyHomePageState extends State<HomePage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Icon(Icons.supervised_user_circle_sharp, color: Colors.white, size: 40,),
-              Text(
-                tvCount,
-                style: titleHeadTextWhiteBold,
+              FutureBuilder(
+                future: getTotalVisitorCount(),
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  if (snapshot.hasData) {
+                    return Text(
+                      snapshot.data.toString(),
+                      style: titleHeadTextWhiteBold,
+                    );
+                  } else {
+                    return Center(child: const CircularProgressIndicator());
+                  }
+                },
               )
             ],
           )
