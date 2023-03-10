@@ -3,6 +3,7 @@ class Visitor {
   final String name;
   final String email;
   final String phone;
+  final String? visitor_image;
   final String purpose_of_visit;
   final bool disclaimer_accepted;
   final String signature;
@@ -29,7 +30,7 @@ class Visitor {
     required this.is_pre_registered, this.pre_registered_by,
     required this.user_id, required this.tenant_id,
     required this.building_id, required this.account_id,
-    required this.visitor_type_id,
+    required this.visitor_type_id, this.visitor_image
   });
 
   factory Visitor.fromJson(Map<String, dynamic> json) {
@@ -38,6 +39,7 @@ class Visitor {
       name: json['name'],
       email: json['email'],
       phone: json['phone'],
+      visitor_image: json['visitor_image'],
       purpose_of_visit: json['purpose_of_visit'],
       disclaimer_accepted: json['disclaimer_accepted'] == 1? true : false,
       signature: json['signature'],
@@ -61,6 +63,7 @@ class Visitor {
     'name': name,
     'email': email,
     'phone': phone,
+    'visitor_image': visitor_image,
     'purpose_of_visit': purpose_of_visit,
     'disclaimer_accepted': disclaimer_accepted,
     'signature': signature,

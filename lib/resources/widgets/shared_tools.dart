@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:visitor_power_buddy/resources/styles/colours.dart';
 import 'package:visitor_power_buddy/resources/styles/textstyles.dart';
 import 'dart:math' as m;
@@ -47,3 +48,6 @@ void loadingDialog(BuildContext context) {
     }
   );
 }
+
+//Fix format
+DateFormat formatter = DateFormat('hh:mm a dd/MM/yyyy');

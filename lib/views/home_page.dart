@@ -2,10 +2,12 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:visitor_power_buddy/api/visitor_apis.dart';
+import 'package:visitor_power_buddy/models/visitor.dart';
 import 'package:visitor_power_buddy/resources/styles/colours.dart';
 import 'package:visitor_power_buddy/resources/styles/textstyles.dart';
 import 'package:visitor_power_buddy/resources/widgets/drawer.dart';
 
+import '../resources/widgets/shared_tools.dart';
 import '../resources/widgets/user.dart';
 
 class HomePage extends StatefulWidget {
@@ -16,6 +18,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<HomePage> {
+  List<Visitor> visitors = [];
   //This image string should be swapped with the image this user has uploaded for their profile
   String userImagePath = 'assets/images/default_user.png';
   //This string is replaced by the name of the logged in user retrieved from the database
@@ -53,6 +56,14 @@ class _MyHomePageState extends State<HomePage> {
   }
 
   Widget upcomingVisitorsBlock() {
+    //Upcoming visitors count is the number of visitors that preregistered and due soon
+    int upcomingVisitorsCount = 0;
+    for (Visitor i in visitors) {
+      if (i.is_pre_registered && i.sign_out_time == null) {
+        upcomingVisitorsCount++;
+      }
+    }
+
     return Container(
       padding: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(
@@ -80,7 +91,7 @@ class _MyHomePageState extends State<HomePage> {
             children: [
               const Icon(Icons.person_add, color: Colors.white, size: 40,),
               Text(
-                uvCount,
+                upcomingVisitorsCount.toString(),
                 style: titleHeadTextWhiteBold,
               )
             ],
@@ -117,19 +128,10 @@ class _MyHomePageState extends State<HomePage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Icon(Icons.supervised_user_circle_sharp, color: Colors.white, size: 40,),
-              FutureBuilder(
-                future: getTotalVisitorCount(),
-                builder: (BuildContext context, AsyncSnapshot snapshot) {
-                  if (snapshot.hasData) {
-                    return Text(
-                      snapshot.data.toString(),
-                      style: titleHeadTextWhiteBold,
-                    );
-                  } else {
-                    return Center(child: const CircularProgressIndicator());
-                  }
-                },
-              )
+              Text(
+                visitors.length.toString(),
+                style: titleHeadTextWhiteBold,
+              ),
             ],
           )
         ],
@@ -254,7 +256,7 @@ class _MyHomePageState extends State<HomePage> {
               ],
             ),
             const SizedBox(height: 12.0,),
-            visitorCard()
+            //visitorCard()
           ],
         ),
       ),
@@ -262,11 +264,17 @@ class _MyHomePageState extends State<HomePage> {
   }
 
   Widget TVList() {
+    List todays = [];
+    for (Visitor i in visitors) {
+      if (i.sign_in_time.day == DateTime.now().day) {
+        todays.add(i);
+      }
+    }
     return AnimatedOpacity(
       opacity: anim? 1.0 : 0.0,
       duration: animDuration,
       child: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.only(top: 24.0, left: 24.0, right: 24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -289,16 +297,27 @@ class _MyHomePageState extends State<HomePage> {
               ],
             ),
             const SizedBox(height: 12.0,),
-            visitorCard()
+            Container(
+              width: double.infinity, height: 100,
+              child: ListView.builder(
+                itemCount: todays.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return visitorCard(todays[index]);
+                },
+              )
+            )
           ],
         ),
       ),
     );
   }
 
-  Widget visitorCard() {
+  Widget visitorCard(Visitor visitor) {
+    if (visitor.visitor_image == null) {
+      log('It is null');
+    }
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
+      padding: const EdgeInsets.all(12.0),
       child: Container(
         padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
         decoration: BoxDecoration(
@@ -319,19 +338,19 @@ class _MyHomePageState extends State<HomePage> {
             Container(
               padding: const EdgeInsets.all(12.0),
               height: 60,
-              child: Image(
+              child: visitor.visitor_image == null? Image(
                 image: AssetImage(userImagePath),
-              ),
+              ) : CircleAvatar(backgroundImage: NetworkImage(visitor.visitor_image!),),
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'John Smith',
+                  visitor.name,
                   style: titleHeadTextSmallBold,
                 ),
                 Text(
-                  'March 04, 09:30 AM',
+                  formatter.format(visitor.sign_in_time).toString(),
                   style: titleHeadTextSmall,
                 )
               ],
@@ -437,21 +456,33 @@ class _MyHomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: drawerKey,
-      drawer: drawer(context),
-      resizeToAvoidBottomInset: true,
-      body: Center(
-        child: ListView(
-          children: [
-            headRow(),
-            statisticsBlock(),
-            TVList(),
-            UVList(),
-            recentDeliveriesList(),
-          ],
-        ),
-      ),
+    return FutureBuilder(
+      future: getAllVisitors(),
+      builder: (context, AsyncSnapshot snapshot) {
+        if (snapshot.hasData) {
+          visitors = snapshot.data;
+
+          return Scaffold(
+            key: drawerKey,
+            drawer: drawer(context),
+            resizeToAvoidBottomInset: true,
+            body: Center(
+              child: ListView(
+                children: [
+                  headRow(),
+                  statisticsBlock(),
+                  TVList(),
+                  UVList(),
+                  recentDeliveriesList(),
+                ],
+              ),
+            ),
+          );
+        }
+        else {
+          return Center(child: const CircularProgressIndicator());
+        }
+      }
     );
   }
 }
