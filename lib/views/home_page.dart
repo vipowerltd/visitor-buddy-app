@@ -229,34 +229,52 @@ class _MyHomePageState extends State<HomePage> {
   }
 
   Widget UVList() {
+    List upcoming = [];
+    for (Visitor i in visitors) {
+      if (i.sign_in_time.isAfter(DateTime.now()) && i.sign_in_time.day != DateTime.now().day) {
+        upcoming.add(i);
+      }
+    }
+
     return AnimatedOpacity(
       opacity: anim? 1.0 : 0.0,
       duration: animDuration,
       child: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.all(12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Upcoming Visitors',
-                  style: titleHeadText,
-                ),
-                InkWell(
-                  onTap: () {
-                    _seeUpcomingVisitors();
-                  },
-                  child: Text(
-                    'See All',
-                    style: titleHeadTextSmall,
+            Padding(
+              padding: const EdgeInsets.only(left: 12.0, right: 12.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Upcoming Visitors',
+                    style: titleHeadText,
                   ),
-                )
-              ],
+                  InkWell(
+                    onTap: () {
+                      _seeUpcomingVisitors();
+                    },
+                    child: Text(
+                      'See All',
+                      style: titleHeadTextSmall,
+                    ),
+                  )
+                ],
+              ),
             ),
             const SizedBox(height: 12.0,),
-            //visitorCard()
+            Container(
+                width: double.infinity, height: 100,
+                child: upcoming.isNotEmpty? ListView.builder(
+                  itemCount: upcoming.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return visitorCard(upcoming[index]);
+                  },
+                ) : Center(child: Text('Your upcoming visitors will appear here!', style: fieldHeadText))
+            )
           ],
         ),
       ),
@@ -274,37 +292,40 @@ class _MyHomePageState extends State<HomePage> {
       opacity: anim? 1.0 : 0.0,
       duration: animDuration,
       child: Padding(
-        padding: const EdgeInsets.only(top: 24.0, left: 24.0, right: 24.0),
+        padding: const EdgeInsets.only(top: 24.0, left: 12.0, right: 12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Today\'s Visitors',
-                  style: titleHeadText,
-                ),
-                InkWell(
-                  onTap: () {
-                    _seeTodayVisitors();
-                  },
-                  child: Text(
-                    'See All',
-                    style: titleHeadTextSmall,
+            Padding(
+              padding: const EdgeInsets.only(left: 12.0, right: 12.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Today\'s Visitors',
+                    style: titleHeadText,
                   ),
-                )
-              ],
+                  InkWell(
+                    onTap: () {
+                      _seeTodayVisitors();
+                    },
+                    child: Text(
+                      'See All',
+                      style: titleHeadTextSmall,
+                    ),
+                  )
+                ],
+              ),
             ),
             const SizedBox(height: 12.0,),
             Container(
               width: double.infinity, height: 100,
-              child: ListView.builder(
+              child: todays.isNotEmpty? ListView.builder(
                 itemCount: todays.length,
                 itemBuilder: (BuildContext context, int index) {
                   return visitorCard(todays[index]);
                 },
-              )
+              ) : Center(child: Text('Visitors you have due today will appear here!', style: fieldHeadText))
             )
           ],
         ),
