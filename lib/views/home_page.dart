@@ -1,12 +1,14 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:visitor_power_buddy/api/delivery_apis.dart';
 import 'package:visitor_power_buddy/api/visitor_apis.dart';
 import 'package:visitor_power_buddy/models/visitor.dart';
 import 'package:visitor_power_buddy/resources/styles/colours.dart';
 import 'package:visitor_power_buddy/resources/styles/textstyles.dart';
 import 'package:visitor_power_buddy/resources/widgets/drawer.dart';
 
+import '../models/delivery.dart';
 import '../resources/widgets/shared_tools.dart';
 import '../resources/widgets/user.dart';
 
@@ -19,6 +21,7 @@ class HomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<HomePage> {
   List<Visitor> visitors = [];
+  List<Delivery> deliveries = [];
   //This image string should be swapped with the image this user has uploaded for their profile
   String userImagePath = 'assets/images/default_user.png';
   //This string is replaced by the name of the logged in user retrieved from the database
@@ -172,7 +175,7 @@ class _MyHomePageState extends State<HomePage> {
                 ),
               ),
               Text(
-                tpCount,
+                deliveries.length.toString(),
                 style: titleHeadTextWhiteBold,
               )
             ],
@@ -483,21 +486,32 @@ class _MyHomePageState extends State<HomePage> {
         if (snapshot.hasData) {
           visitors = snapshot.data;
 
-          return Scaffold(
-            key: drawerKey,
-            drawer: drawer(context),
-            resizeToAvoidBottomInset: true,
-            body: Center(
-              child: ListView(
-                children: [
-                  headRow(),
-                  statisticsBlock(),
-                  TVList(),
-                  UVList(),
-                  recentDeliveriesList(),
-                ],
-              ),
-            ),
+          return FutureBuilder(
+            future: getAllDeliveries(),
+            builder: (context, AsyncSnapshot snapshot2) {
+              if (snapshot2.hasData) {
+                deliveries = snapshot2.data;
+                return Scaffold(
+                  key: drawerKey,
+                  drawer: drawer(context),
+                  resizeToAvoidBottomInset: true,
+                  body: Center(
+                    child: ListView(
+                      children: [
+                        headRow(),
+                        statisticsBlock(),
+                        TVList(),
+                        UVList(),
+                        recentDeliveriesList(),
+                      ],
+                    ),
+                  ),
+                );
+              }
+              else {
+                return Center(child: const CircularProgressIndicator());
+              }
+            }
           );
         }
         else {
@@ -529,21 +543,7 @@ void _seeRecentDeliveries() {
 
 //TODO
 //________________________
-//USER BLOCK
-// - The user widget at the top right of the page should display the logged in
-//   user's name + display photo retrieved from the database
+//Add functionality to each 'SEE ALL' button
 //
-//STATISTICS BLOCK
-// - Update numbers displayed with the correct corresponding count from the database
-//
-//TODAY'S VISITORS/ UPCOMING VISITORS
-// - Convert to ListView to hold more than one entry
-// - Retrieve the list of visitor's dated to arrive today or in the future on page load and render them in a list
-//
-//RECENT DELIVERIES
-// - Display 2/3 most recent deliveries made for this user from the database.
-// - Elements of this widget change based on whether the delivery is already claimed or not
-//
-//SEE ALL
-// - See all buttons will need to redirect to either their respective log pages, or generate a list of only
-//   what has been clicked on
+//Use newly acquired delivery data to populate the recent deliveries widget
+//with the correct information
