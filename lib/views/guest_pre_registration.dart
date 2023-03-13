@@ -4,14 +4,20 @@ import 'package:intl/intl.dart';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:page_transition/page_transition.dart';
+import 'package:visitor_power_buddy/api/account_management_apis.dart';
+import 'package:visitor_power_buddy/api/visitor_apis.dart';
+import 'package:visitor_power_buddy/models/visitor.dart';
 import 'package:visitor_power_buddy/resources/styles/formstyles.dart';
 import 'package:visitor_power_buddy/resources/widgets/buttons.dart';
 import 'package:visitor_power_buddy/resources/widgets/drawer.dart';
 import 'package:visitor_power_buddy/resources/widgets/shared_tools.dart';
 
+import '../api/env.dart';
 import '../resources/styles/colours.dart';
 import '../resources/styles/textstyles.dart';
 import '../resources/widgets/user.dart';
+import 'home_page.dart';
 
 class PreRegistration extends StatefulWidget {
   const PreRegistration({super.key,});
@@ -231,7 +237,7 @@ class _PreRegistrationState extends State<PreRegistration> {
           return AlertDialog(
             title: Text('Are These Details Correct?', style: titleHeadText,),
             content: Container(
-              height: 400,
+              height: 450,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -309,8 +315,37 @@ class _PreRegistrationState extends State<PreRegistration> {
                         child: mainButton('Cancel'),
                       ),
                       InkWell(
-                        onTap: () {
-                          _guestSubmission();
+                        onTap: () async {
+                          var ids = await getUserIDs();
+                          Visitor visitor = Visitor(
+                              visitor_id: generateRandomString(), name: fullNameController.text,
+                              email: emailAddressController.text, phone: phoneNoController.text,
+                              purpose_of_visit: '', disclaimer_accepted: false,
+                              signature: null, sign_in_time: finalDate,
+                              signed_in_by: int.parse(userID), signed_in_method: 'pre-registration',
+                              is_pre_registered: true, user_id: int.parse(userID),
+                              tenant_id: ids['tenant_id'], building_id: ids['building_id'],
+                              account_id: ids['account_id'], visitor_type_id: 293849);
+
+                          bool res = await _guestSubmission(context, visitor);
+                          if (res) {
+                            //Navigate back to home with a snackbar
+                            Navigator.pop(context);
+                            Navigator.pop(context);
+                            showSnackBar(context, '${visitor.name} visit pre-registration complete!');
+                            Navigator.push(
+                              context,
+                              PageTransition(
+                                type: PageTransitionType.leftToRight,
+                                child: const HomePage(),
+                              ),
+                            );
+                          }
+                          else {
+                            Navigator.pop(context);
+                            Navigator.pop(context);
+                            showSnackBar(context, 'Adding visitor failed! Please try again.');
+                          }
                         },
                         child: mainButton('Submit'),
                       )
@@ -454,8 +489,19 @@ void _cancelGuestSubmission(BuildContext context) {
   Navigator.pop(context);
 }
 
-void _guestSubmission() {
+Future<bool> _guestSubmission(BuildContext context, Visitor visitor) async {
   log('Tapped Guest Submission!');
+  log(visitor.building_id.toString());
+
+  loadingDialog(context);
+  bool result = await addVisitor(visitor);
+
+  if (result) {
+    return true;
+  }
+  else {
+    return false;
+  }
 }
 
 

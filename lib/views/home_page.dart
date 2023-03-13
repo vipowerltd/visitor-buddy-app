@@ -8,6 +8,7 @@ import 'package:visitor_power_buddy/resources/styles/colours.dart';
 import 'package:visitor_power_buddy/resources/styles/textstyles.dart';
 import 'package:visitor_power_buddy/resources/widgets/drawer.dart';
 
+import '../api/call_api.dart';
 import '../models/delivery.dart';
 import '../resources/widgets/shared_tools.dart';
 import '../resources/widgets/user.dart';
@@ -22,17 +23,6 @@ class HomePage extends StatefulWidget {
 class _MyHomePageState extends State<HomePage> {
   List<Visitor> visitors = [];
   List<Delivery> deliveries = [];
-  //This image string should be swapped with the image this user has uploaded for their profile
-  String userImagePath = 'assets/images/default_user.png';
-  //This string is replaced by the name of the logged in user retrieved from the database
-  String userName = 'John Doe';
-  //This string is replaced by the count of upcoming visitors to the building
-  String uvCount = '01';
-  //This string is replaced by the count of total visitors to the building
-  String tvCount = '12';
-  //This string is replaced by the count of total parcels to the building
-  String tpCount = '04';
-  //----------------------------------------------------------------------------
 
   GlobalKey<ScaffoldState> drawerKey = GlobalKey<ScaffoldState>();
   bool anim = false;
@@ -62,7 +52,7 @@ class _MyHomePageState extends State<HomePage> {
     //Upcoming visitors count is the number of visitors that preregistered and due soon
     int upcomingVisitorsCount = 0;
     for (Visitor i in visitors) {
-      if (i.is_pre_registered && i.sign_out_time == null) {
+      if (i.is_pre_registered && i.sign_out_time == null && i.sign_in_time.isAfter(DateTime.now())) {
         upcomingVisitorsCount++;
       }
     }
@@ -388,6 +378,17 @@ class _MyHomePageState extends State<HomePage> {
   Widget recentDeliveriesList() {
     double startPos = 1;
     double endPos = 0;
+
+    //Take the two most recent deliveries to display on the page
+    List<Delivery> recentDeliveries = [];
+    for (Delivery i in deliveries) {
+      if (recentDeliveries.length < 2) {
+        if (i.arrival_time.isAfter(DateTime.now().subtract(Duration(days: 2)))) {
+          recentDeliveries.add(i);
+        }
+      }
+    }
+
     return TweenAnimationBuilder(
       tween: Tween<Offset>(begin: Offset(0, startPos), end: Offset(0, endPos)),
       duration: animDuration,
@@ -427,12 +428,12 @@ class _MyHomePageState extends State<HomePage> {
               ),
               const SizedBox(height: 12.0),
               Expanded(
-                child: ListView(
-                  children: [
-                    deliveryRow(true),
-                    deliveryRow(false),
-                  ],
-                ),
+                child: recentDeliveries.isNotEmpty? ListView.builder(
+                    itemCount: recentDeliveries.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return deliveryRow(recentDeliveries[index]);
+                    }
+                ) : Center(child: Text('Your recent deliveries will appear here.', style: fieldHeadTextWhite,)),
               )
             ],
           ),
@@ -441,7 +442,7 @@ class _MyHomePageState extends State<HomePage> {
     );
   }
 
-  Widget deliveryRow(bool collected) {
+  Widget deliveryRow(Delivery delivery) {
     return Padding(
       padding: const EdgeInsets.only(top: 8.0,),
       child: Row(
@@ -458,15 +459,15 @@ class _MyHomePageState extends State<HomePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'PC141 - Feb 20, 2:00 PM',
+                delivery.delivery_id.toString(),
                 style: titleHeadTextWhite,
               ),
               Row(
                 children: [
-                  Icon(Icons.circle, color: collected? Colors.green : Colors.deepOrange, size: 15,),
+                  Icon(Icons.circle, color: delivery.claim_status? Colors.green : Colors.deepOrange, size: 15,),
                   const SizedBox(width: 8.0,),
                   Text(
-                    collected? 'Collected' : 'In Reception',
+                    delivery.claim_status? 'Collected' : 'In Reception',
                     style: titleHeadTextWhiteSmall,
                   )
                 ],
@@ -481,37 +482,27 @@ class _MyHomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: getAllVisitors(),
+      future: getHomeContent(),
       builder: (context, AsyncSnapshot snapshot) {
         if (snapshot.hasData) {
-          visitors = snapshot.data;
+          visitors = snapshot.data['visitors'];
+          deliveries = snapshot.data['deliveries'];
 
-          return FutureBuilder(
-            future: getAllDeliveries(),
-            builder: (context, AsyncSnapshot snapshot2) {
-              if (snapshot2.hasData) {
-                deliveries = snapshot2.data;
-                return Scaffold(
-                  key: drawerKey,
-                  drawer: drawer(context),
-                  resizeToAvoidBottomInset: true,
-                  body: Center(
-                    child: ListView(
-                      children: [
-                        headRow(),
-                        statisticsBlock(),
-                        TVList(),
-                        UVList(),
-                        recentDeliveriesList(),
-                      ],
-                    ),
-                  ),
-                );
-              }
-              else {
-                return Center(child: const CircularProgressIndicator());
-              }
-            }
+          return Scaffold(
+            key: drawerKey,
+            drawer: drawer(context),
+            resizeToAvoidBottomInset: true,
+            body: Center(
+              child: ListView(
+                children: [
+                  headRow(),
+                  statisticsBlock(),
+                  TVList(),
+                  UVList(),
+                  recentDeliveriesList(),
+                ],
+              ),
+            ),
           );
         }
         else {

@@ -42,3 +42,18 @@ Future<List<Visitor>> getAllVisitors() async {
   log('List length: ${list.length}');
   return list;
 }
+
+Future<bool> addVisitor(Visitor visitor) async {
+  String url = '${Env.URL_PREFIX}/api/post/insert_preregistered_visitor.php';
+  var response = await post(Uri.parse(url), headers: {
+    'content-type': 'application/json', 'accept': 'application/json'
+  },body: jsonEncode(visitor.toJson()));
+  var result = json.decode(response.body);
+
+  if (result['message'].contains('Created')) {
+    return true;
+  }
+  else {
+    return false;
+  }
+}

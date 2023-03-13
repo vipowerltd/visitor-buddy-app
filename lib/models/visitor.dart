@@ -6,7 +6,7 @@ class Visitor {
   final String? visitor_image;
   final String purpose_of_visit;
   final bool disclaimer_accepted;
-  final String signature;
+  final String? signature;
   final DateTime sign_in_time;
   final DateTime? sign_out_time;
   final int signed_in_by;
@@ -24,7 +24,7 @@ class Visitor {
     required this.visitor_id, required this.name,
     required this.email, required this.phone,
     required this.purpose_of_visit, required this.disclaimer_accepted,
-    required this.signature, required this.sign_in_time,
+    this.signature, required this.sign_in_time,
     this.sign_out_time, required this.signed_in_by,
     this.signed_out_by, required this.signed_in_method,
     required this.is_pre_registered, this.pre_registered_by,
@@ -67,8 +67,8 @@ class Visitor {
     'purpose_of_visit': purpose_of_visit,
     'disclaimer_accepted': disclaimer_accepted,
     'signature': signature,
-    'sign_in_time': sign_in_time,
-    'sign_out_time': sign_out_time,
+    'sign_in_time': sign_in_time.toIso8601String(),
+    'sign_out_time': sign_out_time == null? null : sign_out_time!.toIso8601String(),
     'signed_in_by': signed_in_by,
     'signed_out_by': signed_out_by,
     'signed_in_method': signed_in_method,

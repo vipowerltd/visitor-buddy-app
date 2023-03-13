@@ -28,3 +28,13 @@ Future<Response> validateLogin(String email, String password) async {
 
   return response;
 }
+
+Future<Map<String, dynamic>> getUserIDs() async {
+  String url = '${Env.URL_PREFIX}/api/post/get_user_ids.php';
+  var response = await post(Uri.parse(url), headers: {
+    'accept': 'application/json',
+  }, body: jsonEncode({"user_id": userID})
+  );
+  log(response.body);
+  return json.decode(response.body);
+}

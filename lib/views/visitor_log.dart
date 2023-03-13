@@ -1,10 +1,13 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:visitor_power_buddy/api/visitor_apis.dart';
 import 'package:visitor_power_buddy/resources/styles/formstyles.dart';
 import 'package:visitor_power_buddy/resources/styles/textstyles.dart';
 import 'package:visitor_power_buddy/resources/widgets/drawer.dart';
+import 'package:visitor_power_buddy/resources/widgets/shared_tools.dart';
 
+import '../models/visitor.dart';
 import '../resources/styles/colours.dart';
 import '../resources/widgets/user.dart';
 
@@ -19,6 +22,9 @@ class _MyHomePageState extends State<VisitorLogPage> {
 
   GlobalKey<ScaffoldState> drawerKey = GlobalKey<ScaffoldState>();
   double opacity = 0.0;
+  TextEditingController searchController = TextEditingController();
+  List<Visitor> visitors = [];
+  List<Visitor> searchResults = [];
 
   @override
   void initState() {
@@ -27,7 +33,35 @@ class _MyHomePageState extends State<VisitorLogPage> {
         opacity = 1.0;
       });
     });
+    searchResults = List.from(visitors);
+    searchController.addListener(onSearchChanged);
     super.initState();
+  }
+
+  onSearchChanged() {
+    log('Search changed');
+    searchResultsList();
+  }
+
+  searchResultsList() {
+    List<Visitor> showResults = [];
+    if (searchController.text.isNotEmpty) {
+      for (var visitor in visitors) {
+        var name = visitor.name.toLowerCase();
+
+        if (name.contains(searchController.text.toLowerCase())) {
+          showResults.add(visitor);
+          log('Record added to list');
+        }
+      }
+    }
+    else {
+      showResults = List.from(visitors);
+    }
+
+    setState(() {
+      searchResults = showResults;
+    });
   }
 
   Widget headRow() {
@@ -74,6 +108,13 @@ class _MyHomePageState extends State<VisitorLogPage> {
   }
 
   Widget activeVisitorList() {
+    List<Visitor> activeVisitors = [];
+    for (Visitor i in visitors) {
+      if (i.sign_in_time.day == DateTime.now().day && i.sign_out_time == null) {
+        activeVisitors.add(i);
+      }
+    }
+
     return AnimatedOpacity(
       opacity: opacity,
       duration: const Duration(milliseconds: 500),
@@ -101,15 +142,23 @@ class _MyHomePageState extends State<VisitorLogPage> {
               ],
             ),
             const SizedBox(height: 12.0,),
-            visitorCard(),
-            visitorCard(),
+            Container(
+              color: appBackgroundColour,
+              height: MediaQuery.of(context).size.height * 0.2,
+              child: activeVisitors.isNotEmpty? ListView.builder(
+                  itemCount: activeVisitors.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return activeVisitorCard(activeVisitors[index]);
+                  }
+              ) : Center(child: Text('Your active visitors will appear here!', style: fieldHeadText))
+            )
           ],
         ),
       ),
     );
   }
 
-  Widget visitorCard() {
+  Widget activeVisitorCard(Visitor visitor) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
       child: Container(
@@ -132,15 +181,15 @@ class _MyHomePageState extends State<VisitorLogPage> {
             Container(
               padding: const EdgeInsets.all(12.0),
               height: 60,
-              child: Image(
+              child: visitor.visitor_image == null? Image(
                 image: AssetImage(userImagePath),
-              ),
+              ) : CircleAvatar(backgroundImage: NetworkImage(visitor.visitor_image!),)
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'John Smith',
+                  visitor.name,
                   style: titleHeadTextSmallBold,
                 ),
                 Row(
@@ -152,7 +201,70 @@ class _MyHomePageState extends State<VisitorLogPage> {
                     ),
                     const SizedBox(width: 12.0),
                     Text(
-                      'March 04, 09:30 AM',
+                      formatter.format(visitor.sign_in_time),
+                      style: titleHeadTextSmall,
+                    )
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(width: 32.0,),
+            InkWell(
+              onTap: () {
+                _seeMoreVisitorDetails(context, visitor);
+              },
+              child: Icon(Icons.more_horiz, color: mainColour, size: 40,),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget visitorCard(Visitor visitor) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Container(
+        padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5),
+            color: paleBlue,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                spreadRadius: 5,
+                blurRadius: 9,
+                offset: const Offset(0, 3),
+              )
+            ]
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12.0),
+              height: 60,
+              child: visitor.visitor_image == null? Image(
+                image: AssetImage(userImagePath),
+              ) : CircleAvatar(backgroundImage: NetworkImage(visitor.visitor_image!),)
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  visitor.name,
+                  style: titleHeadTextSmallBold,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Arrived:',
+                      style: titleHeadTextSmall,
+                    ),
+                    const SizedBox(width: 12.0),
+                    Text(
+                      formatter.format(visitor.sign_in_time),
                       style: titleHeadTextSmall,
                     )
                   ],
@@ -166,7 +278,7 @@ class _MyHomePageState extends State<VisitorLogPage> {
                     ),
                     const SizedBox(width: 12.0),
                     Text(
-                      'March 04, 12:30 AM',
+                      visitor.sign_out_time == null? 'ON SITE' : formatter.format(visitor.sign_out_time!),
                       style: titleHeadTextSmall,
                     )
                   ],
@@ -176,7 +288,7 @@ class _MyHomePageState extends State<VisitorLogPage> {
             const SizedBox(width: 32.0,),
             InkWell(
               onTap: () {
-                _seeMoreVisitorDetails(context, false);
+                _seeMoreVisitorDetails(context, visitor);
               },
               child: Icon(Icons.more_horiz, color: mainColour, size: 40,),
             )
@@ -206,6 +318,7 @@ class _MyHomePageState extends State<VisitorLogPage> {
         Expanded(
           child: TextFormField(
             decoration: visitorSearchStyle('Search for a visitor...'),
+            controller: searchController
           ),
         )
       ],
@@ -217,44 +330,44 @@ class _MyHomePageState extends State<VisitorLogPage> {
       opacity: opacity,
       duration: const Duration(milliseconds: 500),
       child: Padding(
-        padding: const EdgeInsets.only(left: 24.0, right: 24.0),
+        padding: const EdgeInsets.only(left: 12.0, right: 12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'All Visitors',
-                  style: titleHeadText,
-                ),
-                InkWell(
-                  onTap: () {
-                    _seeAllVisitors();
-                  },
-                  child: Text(
-                    'See All',
-                    style: titleHeadTextSmall,
-                  ),
-                )
-              ],
-            ),
-            const SizedBox(height: 12.0,),
-            visitorSearch(),
-            const SizedBox(height: 12.0,),
-            Container(
-              color: appBackgroundColour,
-              height: MediaQuery.of(context).size.height * 0.35,
-              child: ListView(
+            Padding(
+              padding: const EdgeInsets.only(left: 12.0, right: 12.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  visitorCard(),
-                  visitorCard(),
-                  visitorCard(),
-                  visitorCard(),
-                  visitorCard(),
-                  visitorCard(),
+                  Text(
+                    'All Visitors',
+                    style: titleHeadText,
+                  ),
+                  InkWell(
+                    onTap: () {
+                      _seeAllVisitors();
+                    },
+                    child: Text(
+                      'See All',
+                      style: titleHeadTextSmall,
+                    ),
+                  )
                 ],
               ),
+            ),
+            const SizedBox(height: 12.0,),
+            Padding(padding: const EdgeInsets.only(left: 12.0, right: 12.0), child: visitorSearch()),
+            const SizedBox(height: 12.0,),
+            Container(
+              padding: const EdgeInsets.only(left: 12.0, right: 12.0),
+              color: appBackgroundColour,
+              height: MediaQuery.of(context).size.height * 0.35,
+              child: ListView.builder(
+                itemCount: searchResults.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return visitorCard(searchResults[index]);
+                }
+              )
             )
           ],
         ),
@@ -264,21 +377,27 @@ class _MyHomePageState extends State<VisitorLogPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: drawerKey,
-      drawer: drawer(context),
-      resizeToAvoidBottomInset: true,
-      body: Center(
-        child: ListView(
-          //keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          children: [
-            headRow(),
-            pageTitle(),
-            activeVisitorList(),
-            allVisitorsList(),
-          ],
-        ),
-      ),
+    return FutureBuilder(
+      future: getAllVisitors(),
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        visitors = snapshot.data;
+        return Scaffold(
+          key: drawerKey,
+          drawer: drawer(context),
+          resizeToAvoidBottomInset: true,
+          body: Center(
+            child: ListView(
+              //keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              children: [
+                headRow(),
+                pageTitle(),
+                activeVisitorList(),
+                allVisitorsList(),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -290,9 +409,9 @@ void _openDrawer(GlobalKey<ScaffoldState> drawerKey) {
   drawerKey.currentState?.openDrawer();
 }
 
-void _seeMoreVisitorDetails(BuildContext context, bool returned) {
+void _seeMoreVisitorDetails(BuildContext context, Visitor visitor) {
   log('Attempting to open visitor details modal');
-  showModal(context, returned);
+  showModal(context, visitor);
 }
 
 void _seeAllActiveVisitors() {
@@ -312,7 +431,7 @@ void _closeVisitorModal(BuildContext context) {
 }
 
 //Modal Menu
-void showModal(BuildContext context, bool returned) {
+void showModal(BuildContext context, Visitor visitor) {
   showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
     return StatefulBuilder(
         builder: (BuildContext context, StateSetter setModalState) {
@@ -367,7 +486,7 @@ void showModal(BuildContext context, bool returned) {
                                   children: [
                                     //Visitor Details
                                     Text(
-                                      'John Smith',
+                                      visitor.name,
                                       style: titleHeadText,
                                     ),
                                     const SizedBox(height: 12.0),
@@ -376,7 +495,7 @@ void showModal(BuildContext context, bool returned) {
                                       style: formHintText,
                                     ),
                                     Text(
-                                      'johnsmith@gmail.com',
+                                      visitor.email,
                                       style: titleHeadTextSmall,
                                     ),
                                     const SizedBox(height: 8.0),
@@ -385,27 +504,37 @@ void showModal(BuildContext context, bool returned) {
                                       style: formHintText,
                                     ),
                                     Text(
-                                      '02495829302',
+                                      visitor.phone,
                                       style: titleHeadTextSmall,
                                     ),
                                     const SizedBox(height: 8.0),
-                                    Text(
-                                      'Company',
-                                      style: formHintText,
-                                    ),
-                                    Text(
-                                      'ViPower Limited',
-                                      style: titleHeadTextSmall
-                                    ),
                                   ],
                                 ),
                               ),
-                              const Flexible(
+                              Flexible(
                                 flex: 1,
                                 child: Center(
-                                  child: Image(
+                                  child: visitor.visitor_image == null? Image(
                                     image: AssetImage('assets/images/default_user.png'),
-                                  )
+                                  ) : Center(child: Container(
+                                    height: 100, width: 100,
+                                    decoration: BoxDecoration(
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black38,
+                                            spreadRadius: 5,
+                                            blurRadius: 9,
+                                            offset: const Offset(0, 3),
+                                          )
+                                        ],
+                                        border: Border.all(color: Colors.orange),
+                                        borderRadius: BorderRadius.circular(125),
+                                        image: DecorationImage(
+                                          image: NetworkImage(visitor.visitor_image!),
+                                          fit: BoxFit.cover,
+                                        )
+                                    ),
+                                  ),),
                                 )
                               )
                             ],
@@ -424,7 +553,7 @@ void showModal(BuildContext context, bool returned) {
                                       style: formHintText,
                                     ),
                                     Text(
-                                      'March 04, 9:30 AM',
+                                      formatter.format(visitor.sign_in_time),
                                       style: titleHeadTextSmall,
                                     ),
                                   ],
@@ -432,7 +561,7 @@ void showModal(BuildContext context, bool returned) {
                               ),
                               Flexible(
                                 flex: 1,
-                                child: returned? Column(
+                                child: visitor.sign_out_time != null? Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
@@ -453,10 +582,10 @@ void showModal(BuildContext context, bool returned) {
                             mainAxisAlignment: MainAxisAlignment.end,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Icon(Icons.circle, color: returned? Colors.deepOrange : Colors.green, size: 12.0,),
+                              Icon(Icons.circle, color: visitor.sign_out_time != null? Colors.deepOrange : Colors.green, size: 12.0,),
                               const SizedBox(width: 12.0),
                               Text(
-                                returned? 'Departed' : 'On Site',
+                                visitor.sign_out_time != null? 'Departed' : 'On Site',
                                 style: formHintText,
                               )
                             ],
