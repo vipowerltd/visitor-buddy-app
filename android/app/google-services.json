@@ -1,0 +1,118 @@
+{
+  "project_info": {
+    "project_number": "416887931010",
+    "project_id": "visitorpower-61de7",
+    "storage_bucket": "visitorpower-61de7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:416887931010:android:0c9d9b405eed3f9d07349b",
+        "android_client_info": {
+          "package_name": "vipower.org.vipower_visitor_power"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "416887931010-9rvpltj598u1gdl1qg1phaq2c5uqrqsq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5SklbTnszXnviAbAU4qxt3eR0K7Vp3-Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "416887931010-9rvpltj598u1gdl1qg1phaq2c5uqrqsq.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "416887931010-ivq5uu6g594n9v2d3d6np9cmuru9dccs.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "vipower.visitor.vipowerVisitorPower"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:416887931010:android:387a7012d7e61fb407349b",
+        "android_client_info": {
+          "package_name": "vipower.visitor.vipower_visitor_power"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "416887931010-9rvpltj598u1gdl1qg1phaq2c5uqrqsq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5SklbTnszXnviAbAU4qxt3eR0K7Vp3-Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "416887931010-9rvpltj598u1gdl1qg1phaq2c5uqrqsq.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "416887931010-ivq5uu6g594n9v2d3d6np9cmuru9dccs.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "vipower.visitor.vipowerVisitorPower"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:416887931010:android:e8adb22efeebcde107349b",
+        "android_client_info": {
+          "package_name": "vipower.visitorpower.buddy.visitor_power_buddy"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "416887931010-9rvpltj598u1gdl1qg1phaq2c5uqrqsq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5SklbTnszXnviAbAU4qxt3eR0K7Vp3-Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "416887931010-9rvpltj598u1gdl1qg1phaq2c5uqrqsq.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "416887931010-ivq5uu6g594n9v2d3d6np9cmuru9dccs.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "vipower.visitor.vipowerVisitorPower"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

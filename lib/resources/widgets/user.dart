@@ -15,9 +15,7 @@ Widget userWidget() {
   return FutureBuilder(
     future: getName(),
     builder: (BuildContext context, AsyncSnapshot snapshot) {
-      log('Attempting');
       if (!snapshot.hasData) {
-        log('No data');
         return CircularProgressIndicator();
       }
       else {
@@ -29,9 +27,9 @@ Widget userWidget() {
               height: 50,
               child: CircleAvatar(
                 radius: 25,
-                backgroundImage: NetworkImage(
+                backgroundImage: snapshot.data['image'] != null? NetworkImage(
                   snapshot.data['image'],
-                ),
+                ) : Image.asset('assets/images/default_user.png').image,
               )
             ),
             const SizedBox(width: 12.0,),

@@ -485,8 +485,12 @@ class _MyHomePageState extends State<HomePage> {
       future: getHomeContent(),
       builder: (context, AsyncSnapshot snapshot) {
         if (snapshot.hasData) {
-          visitors = snapshot.data['visitors'];
-          deliveries = snapshot.data['deliveries'];
+          if (snapshot.data['visitors'] != null) {
+            visitors = snapshot.data['visitors'];
+          }
+          if (snapshot.data['deliveries'] != null) {
+            deliveries = snapshot.data['deliveries'];
+          }
 
           return Scaffold(
             key: drawerKey,

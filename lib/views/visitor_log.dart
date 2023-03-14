@@ -25,6 +25,7 @@ class _MyHomePageState extends State<VisitorLogPage> {
   TextEditingController searchController = TextEditingController();
   List<Visitor> visitors = [];
   List<Visitor> searchResults = [];
+  late Future getAllVisitorsFuture;
 
   @override
   void initState() {
@@ -33,8 +34,9 @@ class _MyHomePageState extends State<VisitorLogPage> {
         opacity = 1.0;
       });
     });
-    searchResults = List.from(visitors);
+    getAllVisitorsFuture = getAllVisitors();
     searchController.addListener(onSearchChanged);
+    searchResults = List.from(visitors);
     super.initState();
   }
 
@@ -44,6 +46,7 @@ class _MyHomePageState extends State<VisitorLogPage> {
   }
 
   searchResultsList() {
+    log('HERE');
     List<Visitor> showResults = [];
     if (searchController.text.isNotEmpty) {
       for (var visitor in visitors) {
@@ -378,25 +381,33 @@ class _MyHomePageState extends State<VisitorLogPage> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: getAllVisitors(),
+      future: getAllVisitorsFuture,
       builder: (BuildContext context, AsyncSnapshot snapshot) {
-        visitors = snapshot.data;
-        return Scaffold(
-          key: drawerKey,
-          drawer: drawer(context),
-          resizeToAvoidBottomInset: true,
-          body: Center(
-            child: ListView(
-              //keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              children: [
-                headRow(),
-                pageTitle(),
-                activeVisitorList(),
-                allVisitorsList(),
-              ],
+
+        if (snapshot.connectionState == ConnectionState.done) {
+          if (snapshot.data != null) {
+            visitors = snapshot.data;
+          }
+          return Scaffold(
+            key: drawerKey,
+            drawer: drawer(context),
+            resizeToAvoidBottomInset: true,
+            body: Center(
+              child: ListView(
+                //keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                children: [
+                  headRow(),
+                  pageTitle(),
+                  activeVisitorList(),
+                  allVisitorsList(),
+                ],
+              ),
             ),
-          ),
-        );
+          );
+        }
+        else {
+          return Center(child: CircularProgressIndicator());
+        }
       },
     );
   }

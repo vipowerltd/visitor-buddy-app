@@ -1,9 +1,12 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:visitor_power_buddy/models/delivery.dart';
 import 'package:visitor_power_buddy/resources/styles/textstyles.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:visitor_power_buddy/resources/widgets/shared_tools.dart';
 
+import '../api/delivery_apis.dart';
 import '../resources/styles/colours.dart';
 import '../resources/styles/formstyles.dart';
 import '../resources/widgets/drawer.dart';
@@ -30,8 +33,7 @@ class _DeliveryLogState extends State<DeliveryLog> {
     super.initState();
   }
 
-  List<Widget> unclaimedDeliveriesList = [];
-  List<Widget> allDeliveriesList = [];
+  List<Delivery> allDeliveriesList = [];
 
   String qrData = '295102958102958';
 
@@ -84,8 +86,12 @@ class _DeliveryLogState extends State<DeliveryLog> {
   }
 
   Widget unclaimedDeliveries() {
-    unclaimedDeliveriesList = [unclaimedCard(), unclaimedCard(), unclaimedCard()];
-
+    List<Widget> unclaimedDeliveriesWidgetList = [];
+    for (Delivery i in allDeliveriesList) {
+      if (i.claim_status == false) {
+        unclaimedDeliveriesWidgetList.add(unclaimedCard(i));
+      }
+    }
     return Padding(
       padding: const EdgeInsets.only(top: 24.0, left: 24.0, right: 24.0, bottom: 12.0),
       child: Column(
@@ -98,10 +104,10 @@ class _DeliveryLogState extends State<DeliveryLog> {
           const SizedBox(height: 12.0),
           Container(
             height: 200,
-            child: ListView(
+            child: unclaimedDeliveriesWidgetList.length != 0? ListView(
               padding: const EdgeInsets.all(8.0),
-              children: unclaimedDeliveriesList,
-            ),
+              children: unclaimedDeliveriesWidgetList,
+            ) : Center(child: Text('Your unclaimed deliveries will appear here!', style: fieldHeadText))
           )
         ],
       ),
@@ -109,8 +115,12 @@ class _DeliveryLogState extends State<DeliveryLog> {
   }
 
   Widget allDeliveries() {
-    allDeliveriesList = [claimedCard(), claimedCard(), claimedCard(), claimedCard()];
-
+    List<Widget> allDeliveriesWidgetList = [];
+    for (Delivery i in allDeliveriesList) {
+      if (i.claim_status == true) {
+        allDeliveriesWidgetList.add(claimedCard(i));
+      }
+    }
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Column(
@@ -138,18 +148,18 @@ class _DeliveryLogState extends State<DeliveryLog> {
           const SizedBox(height: 12.0),
           Container(
             height: 275,
-            child: ListView(
+            child: allDeliveriesWidgetList.length != 0? ListView(
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               padding: const EdgeInsets.all(8.0),
-              children: allDeliveriesList,
-            ),
+              children: allDeliveriesWidgetList,
+            ) : Center(child: Text('Your deliveries will appear listed here!', style: fieldHeadText))
           ),
         ],
       ),
     );
   }
 
-  Widget unclaimedCard() {
+  Widget unclaimedCard(Delivery delivery) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
       child: Container(
@@ -170,17 +180,17 @@ class _DeliveryLogState extends State<DeliveryLog> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Container(
-              padding: const EdgeInsets.all(12.0),
-              height: 60,
-              child: const Image(
-                image: AssetImage('assets/images/package.png'),
-              ),
+                padding: const EdgeInsets.all(12.0),
+                height: 60,
+                child: delivery.delivery_image == null? Image(
+                  image: AssetImage('assets/images/package.png'),
+                ) : CircleAvatar(backgroundImage: NetworkImage(delivery.delivery_image!),)
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'PC141',
+                  delivery.delivery_id.toString(),
                   style: titleHeadTextSmallBold,
                 ),
                 Text(
@@ -189,7 +199,7 @@ class _DeliveryLogState extends State<DeliveryLog> {
                 ),
                 const SizedBox(width: 12.0),
                 Text(
-                  'March 04, 09:30 AM',
+                  formatter.format(delivery.arrival_time),
                   style: titleHeadTextSmall,
                 ),
               ],
@@ -203,7 +213,7 @@ class _DeliveryLogState extends State<DeliveryLog> {
                 const SizedBox(height: 12.0),
                 InkWell(
                   onTap: () {
-                    _showQRModal();
+                    _showQRModal(delivery);
                   },
                   child: Icon(Icons.more_horiz, color: mainColour, size: 40,),
                 )
@@ -216,7 +226,7 @@ class _DeliveryLogState extends State<DeliveryLog> {
     );
   }
 
-  Widget claimedCard() {
+  Widget claimedCard(Delivery delivery) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
       child: Container(
@@ -237,17 +247,17 @@ class _DeliveryLogState extends State<DeliveryLog> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Container(
-              padding: const EdgeInsets.all(12.0),
-              height: 60,
-              child: const Image(
-                image: AssetImage('assets/images/package.png'),
-              ),
+                padding: const EdgeInsets.all(12.0),
+                height: 60,
+                child: delivery.delivery_image == null? Image(
+                  image: AssetImage('assets/images/package.png'),
+                ) : CircleAvatar(backgroundImage: NetworkImage(delivery.delivery_image!),)
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'PC141',
+                  delivery.delivery_id.toString(),
                   style: titleHeadTextSmallBold,
                 ),
                 Text(
@@ -255,7 +265,7 @@ class _DeliveryLogState extends State<DeliveryLog> {
                   style: formHintText,
                 ),
                 Text(
-                  'March 04, 09:30 AM',
+                  formatter.format(delivery.arrival_time),
                   style: titleHeadTextSmall,
                 ),
                 Text(
@@ -263,7 +273,7 @@ class _DeliveryLogState extends State<DeliveryLog> {
                   style: formHintText,
                 ),
                 Text(
-                  'March 04, 10:15 AM',
+                  formatter.format(delivery.collected_time!),
                   style: titleHeadTextSmall,
                 )
               ],
@@ -290,7 +300,7 @@ class _DeliveryLogState extends State<DeliveryLog> {
     );
   }
 
-  void _showQRModal() {
+  void _showQRModal(Delivery delivery) {
     showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
       return StatefulBuilder(
           builder: (BuildContext context, StateSetter setModalState) {
@@ -349,7 +359,7 @@ class _DeliveryLogState extends State<DeliveryLog> {
                               child: Container(
                                 height: 100, width: 100,
                                 child: QrImage(
-                                  data: qrData,
+                                  data: delivery.qr_code_value!,
                                   version: QrVersions.auto,
                                 )
                               ),
@@ -360,7 +370,7 @@ class _DeliveryLogState extends State<DeliveryLog> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'PC141',
+                                    delivery.delivery_id.toString(),
                                     style: titleHeadText,
                                   ),
                                   Text(
@@ -368,7 +378,7 @@ class _DeliveryLogState extends State<DeliveryLog> {
                                     style: formHintText,
                                   ),
                                   Text(
-                                    'March 04, 09:30 AM',
+                                    formatter.format(delivery.arrival_time),
                                     style: titleHeadTextSmall,
                                   )
                                 ],
@@ -389,20 +399,33 @@ class _DeliveryLogState extends State<DeliveryLog> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: drawer(context),
-      key: drawerKey,
-      resizeToAvoidBottomInset: true,
-      body: Center(
-        child: ListView(
-          children: [
-            headRow(),
-            pageTitle(),
-            animateOpacity(unclaimedDeliveries()),
-            animateOpacity(allDeliveries()),
-          ],
-        ),
-      ),
+    return FutureBuilder(
+      future: getAllDeliveries(),
+      builder: (context, AsyncSnapshot snapshot) {
+
+        if (snapshot.connectionState == ConnectionState.done) {
+          if (snapshot.hasData) {
+            allDeliveriesList = snapshot.data;
+          }
+          return Scaffold(
+            drawer: drawer(context),
+            key: drawerKey,
+            resizeToAvoidBottomInset: true,
+            body: Center(
+              child: ListView(
+                children: [
+                  headRow(),
+                  pageTitle(),
+                  animateOpacity(unclaimedDeliveries()),
+                  animateOpacity(allDeliveries()),
+                ],
+              ),
+            ),
+          );
+        } else {
+          return Center(child: CircularProgressIndicator());
+        }
+      },
     );
   }
 }

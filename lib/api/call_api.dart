@@ -11,9 +11,17 @@ Future<Map<String, dynamic>> getHomeContent() async {
   List<Delivery> deliveryList = [];
 
   log('Getting Visitors');
-  visitorList = await getAllVisitors();
+  try {
+    visitorList = await getAllVisitors();
+  } catch (e) {
+    log(e.toString());
+  }
   log('Visitors retrieved, getting deliveries');
-  deliveryList = await getAllDeliveries();
+  try {
+    deliveryList = await getAllDeliveries();
+  } catch (e) {
+    log(e.toString());
+  }
   log('Deliveries retrieved');
 
   Map<String, dynamic> result = {

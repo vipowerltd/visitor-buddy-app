@@ -48,6 +48,7 @@ Future<bool> addVisitor(Visitor visitor) async {
   var response = await post(Uri.parse(url), headers: {
     'content-type': 'application/json', 'accept': 'application/json'
   },body: jsonEncode(visitor.toJson()));
+  log('Response: ${response.body}');
   var result = json.decode(response.body);
 
   if (result['message'].contains('Created')) {

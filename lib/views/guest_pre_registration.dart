@@ -14,6 +14,7 @@ import 'package:visitor_power_buddy/resources/widgets/drawer.dart';
 import 'package:visitor_power_buddy/resources/widgets/shared_tools.dart';
 
 import '../api/env.dart';
+import '../api/firebase_storage.dart';
 import '../resources/styles/colours.dart';
 import '../resources/styles/textstyles.dart';
 import '../resources/widgets/user.dart';
@@ -316,36 +317,7 @@ class _PreRegistrationState extends State<PreRegistration> {
                       ),
                       InkWell(
                         onTap: () async {
-                          var ids = await getUserIDs();
-                          Visitor visitor = Visitor(
-                              visitor_id: generateRandomString(), name: fullNameController.text,
-                              email: emailAddressController.text, phone: phoneNoController.text,
-                              purpose_of_visit: '', disclaimer_accepted: false,
-                              signature: null, sign_in_time: finalDate,
-                              signed_in_by: int.parse(userID), signed_in_method: 'pre-registration',
-                              is_pre_registered: true, user_id: int.parse(userID),
-                              tenant_id: ids['tenant_id'], building_id: ids['building_id'],
-                              account_id: ids['account_id'], visitor_type_id: 293849);
-
-                          bool res = await _guestSubmission(context, visitor);
-                          if (res) {
-                            //Navigate back to home with a snackbar
-                            Navigator.pop(context);
-                            Navigator.pop(context);
-                            showSnackBar(context, '${visitor.name} visit pre-registration complete!');
-                            Navigator.push(
-                              context,
-                              PageTransition(
-                                type: PageTransitionType.leftToRight,
-                                child: const HomePage(),
-                              ),
-                            );
-                          }
-                          else {
-                            Navigator.pop(context);
-                            Navigator.pop(context);
-                            showSnackBar(context, 'Adding visitor failed! Please try again.');
-                          }
+                          await insertVisitor();
                         },
                         child: mainButton('Submit'),
                       )
@@ -356,6 +328,49 @@ class _PreRegistrationState extends State<PreRegistration> {
             ),
           );
         });
+  }
+
+  Future<void> insertVisitor() async {
+    var ids = await getUserIDs();
+    var visitor_id = generateRandomString();
+    String? visitorImagePath = null;
+
+    //If an image has been chosen and added
+    if (selectedImage.path != '') {
+      visitorImagePath = await uploadGuestImageToFirebaseStorage(context, selectedImage, visitor_id.toString());
+    }
+
+    //log(visitorImagePath!);
+
+    Visitor visitor = Visitor(
+        visitor_id: visitor_id, name: fullNameController.text,
+        email: emailAddressController.text, phone: phoneNoController.text,
+        purpose_of_visit: '', disclaimer_accepted: false,
+        signature: null, sign_in_time: finalDate, visitor_image: visitorImagePath,
+        signed_in_by: int.parse(userID), signed_in_method: 'pre-registration',
+        is_pre_registered: true, user_id: int.parse(userID),
+        tenant_id: ids['tenant_id'], building_id: ids['building_id'],
+        account_id: ids['account_id'], visitor_type_id: 1);
+
+    bool res = await _guestSubmission(context, visitor);
+    if (res) {
+      //Navigate back to home with a snackbar
+      Navigator.pop(context);
+      Navigator.pop(context);
+      showSnackBar(context, '${visitor.name} visit pre-registration complete!');
+      Navigator.push(
+        context,
+        PageTransition(
+          type: PageTransitionType.leftToRight,
+          child: const HomePage(),
+        ),
+      );
+    }
+    else {
+      Navigator.pop(context);
+      Navigator.pop(context);
+      showSnackBar(context, 'Adding visitor failed! Please try again.');
+    }
   }
 
   void _validateForm() {

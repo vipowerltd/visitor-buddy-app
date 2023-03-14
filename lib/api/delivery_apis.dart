@@ -21,7 +21,7 @@ Future<List<Delivery>> getAllDeliveries() async {
   List<dynamic> data = map['data'];
 
   for (int i = 0; i < data.length; i++) {
-    log('Found visitor');
+    log('Found delivery');
     Delivery a = Delivery.fromJson(data[i]);
     list.add(a);
   }
