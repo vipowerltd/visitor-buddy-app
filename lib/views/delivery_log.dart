@@ -439,7 +439,6 @@ Widget animateOpacity(Widget child) {
   );
 }
 
-
 //Methods for page functionality
 void _openDrawer(GlobalKey<ScaffoldState> drawerKey) {
   log('Opened Drawer Menu');

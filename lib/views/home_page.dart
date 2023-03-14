@@ -277,7 +277,7 @@ class _MyHomePageState extends State<HomePage> {
   Widget TVList() {
     List todays = [];
     for (Visitor i in visitors) {
-      if (i.sign_in_time.day == DateTime.now().day) {
+      if (i.sign_in_time.day == DateTime.now().day && i.sign_out_time == null) {
         todays.add(i);
       }
     }
