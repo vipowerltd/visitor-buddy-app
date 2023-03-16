@@ -350,7 +350,7 @@ class _PreRegistrationState extends State<PreRegistration> {
         signed_in_by: int.parse(userID), signed_in_method: 'pre-registration',
         is_pre_registered: true, user_id: int.parse(userID),
         tenant_id: ids['tenant_id'], building_id: ids['building_id'],
-        account_id: ids['account_id'], visitor_type_id: 1);
+        account_id: ids['account_id'], visitor_type_id: 100002);
 
     bool res = await _guestSubmission(context, visitor);
     if (res) {

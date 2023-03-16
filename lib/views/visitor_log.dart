@@ -25,6 +25,7 @@ class _MyHomePageState extends State<VisitorLogPage> {
   TextEditingController searchController = TextEditingController();
   List<Visitor> visitors = [];
   List<Visitor> searchResults = [];
+  DateTime searchDate = DateTime.now();
   late Future getAllVisitorsFuture;
 
   @override
@@ -36,7 +37,11 @@ class _MyHomePageState extends State<VisitorLogPage> {
     });
     getAllVisitorsFuture = getAllVisitors();
     searchController.addListener(onSearchChanged);
-    searchResults = List.from(visitors);
+    Future.delayed(Duration(milliseconds: 500), () {
+      setState(() {
+        searchResults = List.from(visitors);
+      });
+    });
     super.initState();
   }
 
@@ -46,7 +51,6 @@ class _MyHomePageState extends State<VisitorLogPage> {
   }
 
   searchResultsList() {
-    log('HERE');
     List<Visitor> showResults = [];
     if (searchController.text.isNotEmpty) {
       for (var visitor in visitors) {
@@ -60,6 +64,26 @@ class _MyHomePageState extends State<VisitorLogPage> {
     }
     else {
       showResults = List.from(visitors);
+    }
+
+    setState(() {
+      searchResults = showResults;
+    });
+  }
+
+  filterDate(DateTime date) {
+    searchResultsList();
+    List<Visitor> showResults = [];
+    for (var visitor in searchResults) {
+      var day = visitor.sign_in_time.day;
+      var selDay = date.day;
+      log('Day: $day');
+      log('SelDay: $selDay');
+
+      if (day == selDay) {
+        log('Added visitor today');
+        showResults.add(visitor);
+      }
     }
 
     setState(() {
@@ -305,9 +329,13 @@ class _MyHomePageState extends State<VisitorLogPage> {
     return Row(
       children: [
         InkWell(
-          onTap: () {
+          onTap: () async {
             //Open date picker and change 'Today' to whatever the chosen date is
-            _openDatePicker();
+            var picked = (await _openDatePicker(context))!;
+            setState(() {
+              searchDate = picked;
+            });
+            filterDate(searchDate);
           },
           child: Container(
             width: 125,
@@ -433,8 +461,15 @@ void _seeAllVisitors() {
   log('Tapped See All visitors');
 }
 
-void _openDatePicker() {
+Future<DateTime?> _openDatePicker(BuildContext context) async {
   log('Tapped Date Picker');
+  final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2023),
+      lastDate: DateTime(2025));
+
+  return picked;
 }
 
 void _closeVisitorModal(BuildContext context) {

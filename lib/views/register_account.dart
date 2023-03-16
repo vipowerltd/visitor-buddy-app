@@ -228,6 +228,9 @@ class _RegisterAccountState extends State<RegisterAccount> {
     else if (response.body.contains('tenant_id is already used')) {
       _accountCreationFailure(context, tidFN, 'Account already created with this tenant ID!');
     }
+    else if (response.body.contains('404') || response.body.contains('301')) {
+      _accountCreationFailure(context, tidFN, 'Error, please try again');
+    }
     else {
       _accountCreationSuccess(context);
     }

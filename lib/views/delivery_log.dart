@@ -128,7 +128,7 @@ class _DeliveryLogState extends State<DeliveryLog> {
         mainAxisSize: MainAxisSize.max,
         children: [
           Text(
-            'All Deliveries',
+            'Previous Deliveries',
             style: titleHeadText,
           ),
           const SizedBox(height: 12.0),

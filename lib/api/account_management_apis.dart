@@ -12,9 +12,7 @@ Future<Response> addUser(User user) async {
     'content-type': 'application/json', 'accept': 'application/json'
   },body: jsonEncode(user.toJson()));
 
-  log('Response code: ${response.statusCode}');
-  log('Response: ${response.body}');
-  log('Reason: ${response.reasonPhrase}');
+  log('Response is: ${response.body} \nfgfdgfdgf ${response.request}');
 
   return response;
 }
@@ -25,6 +23,8 @@ Future<Response> validateLogin(String email, String password) async {
     'accept': 'application/json',
   }, body: jsonEncode({"email": email, "password": password})
   );
+
+  log(response.body);
 
   return response;
 }
