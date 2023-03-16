@@ -38,3 +38,27 @@ Future<Map<String, dynamic>> getUserIDs() async {
   log(response.body);
   return json.decode(response.body);
 }
+
+Future<Response> setPasswordResetCode(String email, String code) async {
+  String url = '${Env.URL_PREFIX}/api/post/set_password_reset_code.php';
+  var response = await post(Uri.parse(url), headers: {
+    'accept': 'application/json',
+  }, body: jsonEncode({"email": email, "reset_code": code})
+  );
+
+  log(response.body);
+
+  return response;
+}
+
+Future<Response> checkPasswordResetCode(String email, String code) async {
+  String url = '${Env.URL_PREFIX}/api/post/check_password_reset_code.php';
+  var response = await post(Uri.parse(url), headers: {
+    'accept': 'application/json',
+  }, body: jsonEncode({"email": email, "reset_code": code})
+  );
+
+  log(response.body);
+
+  return response;
+}

@@ -157,15 +157,15 @@ class _MyHomePageState extends State<VisitorLogPage> {
                   'Active Visitors',
                   style: titleHeadText,
                 ),
-                InkWell(
-                  onTap: () {
-                    _seeAllActiveVisitors();
-                  },
-                  child: Text(
-                    'See All',
-                    style: titleHeadTextSmall,
-                  ),
-                )
+                //InkWell(
+                //  onTap: () {
+                //    _seeAllActiveVisitors();
+                //  },
+                //  child: Text(
+                //    'See All',
+                //    style: titleHeadTextSmall,
+                //  ),
+                //)
               ],
             ),
             const SizedBox(height: 12.0,),
@@ -406,6 +406,14 @@ class _MyHomePageState extends State<VisitorLogPage> {
     );
   }
 
+  void _seeAllVisitors() {
+    log('Tapped See All visitors');
+    setState(() {
+      searchResults = List.from(visitors);
+      searchController.clear();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -455,10 +463,6 @@ void _seeMoreVisitorDetails(BuildContext context, Visitor visitor) {
 
 void _seeAllActiveVisitors() {
   log('Tapped See All Active visitors');
-}
-
-void _seeAllVisitors() {
-  log('Tapped See All visitors');
 }
 
 Future<DateTime?> _openDatePicker(BuildContext context) async {

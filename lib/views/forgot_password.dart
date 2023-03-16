@@ -1,9 +1,12 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:visitor_power_buddy/api/account_management_apis.dart';
 import 'package:visitor_power_buddy/resources/styles/colours.dart';
 import 'package:visitor_power_buddy/resources/styles/formstyles.dart';
 import 'package:visitor_power_buddy/resources/styles/textstyles.dart';
+
+import '../resources/widgets/shared_tools.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key,});
@@ -15,7 +18,10 @@ class ForgotPasswordPage extends StatefulWidget {
 class _MyHomePageState extends State<ForgotPasswordPage> {
   TextEditingController pw1TextController = TextEditingController();
   TextEditingController pw2TextController = TextEditingController();
-  bool sent = false;
+  TextEditingController emailTextController = TextEditingController();
+  TextEditingController codeTextController = TextEditingController();
+  bool codeVerified = false;
+  bool emailSent = false;
 
   Widget logoHead() {
     return const Padding(
@@ -97,15 +103,19 @@ class _MyHomePageState extends State<ForgotPasswordPage> {
           ),
           TextFormField(
             decoration: textFormStyle('Email Address'),
-            controller: pw1TextController,
+            controller: emailTextController,
           ),
           SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
           InkWell(
-            onTap: () {
+            onTap: () async {
+              if (emailTextController.text.isEmpty) {
+                showSnackBar(context, 'Please input an email address!');
+                return;
+              }
+              await _sendVerificationLink(context, emailTextController.text);
               setState(() {
-                sent = !sent;
+                emailSent = !emailSent;
               });
-              _sendVerificationLink();
             },
             child: Container(
               width: double.infinity, height: 50,
@@ -120,17 +130,81 @@ class _MyHomePageState extends State<ForgotPasswordPage> {
                 ),
               ),
             ),
-          )
+          ),
+          SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
+          emailSent? verifyCodeBlock() : Container(),
         ],
       ),
     );
   }
 
+  Widget verifyCodeBlock() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Verify Code',
+          style: titleHeadTextWhiteBold,
+        ),
+        SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
+        Text(
+          'Enter the code sent to ${emailTextController.text}.',
+          style: fieldHeadTextWhite,
+        ),
+        TextFormField(
+          decoration: textFormStyle('Reset Code'),
+          controller: codeTextController,
+        ),
+        SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
+        InkWell(
+          onTap: () async {
+            if (codeTextController.text.isEmpty) {
+              showSnackBar(context, 'Please input a reset code!');
+              return;
+            }
+            await _checkResetCode(context, emailTextController.text, codeTextController.text);
+          },
+          child: Container(
+            width: double.infinity, height: 50,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5),
+                color: altColour
+            ),
+            child: Center(
+              child: Text(
+                'Verify Code',
+                style: titleHeadText,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget activeWidget() {
-    if (!sent) {
+    if (!codeVerified) {
       return verifyEmail();
     } else {
       return resetPassword();
+    }
+  }
+
+  Future _checkResetCode(BuildContext context, String email, String code) async {
+    log('Tapped check reset code!');
+    loadingDialog(context);
+
+    var result = await checkPasswordResetCode(email, code);
+
+    if (result.body.contains('Success')) {
+      Navigator.pop(context);
+      setState(() {
+        codeVerified = !codeVerified;
+      });
+    }
+    else {
+      showSnackBar(context, 'Invalid reset code!');
+      Navigator.pop(context);
     }
   }
 
@@ -160,9 +234,15 @@ void _resetPassword() {
   log('Tapped Reset Password');
 }
 
-void _sendVerificationLink() {
+Future _sendVerificationLink(BuildContext context, String email) async {
   log('Tapped Send Verification Link');
+  loadingDialog(context);
+
+  var code = generateRandomString();
+  var result = await setPasswordResetCode(email, code.toString());
+  Navigator.pop(context);
 }
+
 
 
 //TODO
