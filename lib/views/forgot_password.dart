@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:visitor_power_buddy/api/account_management_apis.dart';
+import 'package:visitor_power_buddy/api/email.dart';
 import 'package:visitor_power_buddy/resources/styles/colours.dart';
 import 'package:visitor_power_buddy/resources/styles/formstyles.dart';
 import 'package:visitor_power_buddy/resources/styles/textstyles.dart';
@@ -112,10 +113,20 @@ class _MyHomePageState extends State<ForgotPasswordPage> {
                 showSnackBar(context, 'Please input an email address!');
                 return;
               }
-              await _sendVerificationLink(context, emailTextController.text);
-              setState(() {
-                emailSent = !emailSent;
-              });
+              var code = generateRandomString();
+              await _sendVerificationLink(context, code.toString(), emailTextController.text);
+              loadingDialog(context);
+              bool sent = await sendEmail(emailTextController.text, code.toString(), context);
+              Navigator.pop(context);
+
+              if (sent) {
+                setState(() {
+                  emailSent = true;
+                });
+              }
+              else {
+                showSnackBar(context, 'Error, please try again.');
+              }
             },
             child: Container(
               width: double.infinity, height: 50,
@@ -234,11 +245,10 @@ void _resetPassword() {
   log('Tapped Reset Password');
 }
 
-Future _sendVerificationLink(BuildContext context, String email) async {
+Future _sendVerificationLink(BuildContext context, String code, String email) async {
   log('Tapped Send Verification Link');
   loadingDialog(context);
 
-  var code = generateRandomString();
   var result = await setPasswordResetCode(email, code.toString());
   Navigator.pop(context);
 }
