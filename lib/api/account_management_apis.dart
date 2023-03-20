@@ -37,6 +37,7 @@ Future<Map<String, dynamic>> getUserIDs() async {
   );
   log(response.body);
   return json.decode(response.body);
+
 }
 
 Future<Response> setPasswordResetCode(String email, String code) async {
@@ -61,4 +62,16 @@ Future<Response> checkPasswordResetCode(String email, String code) async {
   log(response.body);
 
   return response;
+}
+
+Future<bool> setNewPassword(String email, String password) async {
+  String url = '${Env.URL_PREFIX}/api/post/set_new_password.php';
+  var response = await post(Uri.parse(url), headers: {
+    'accept': 'application/json',
+  }, body: jsonEncode({"email": email, "password": password})
+  );
+
+  log(response.body);
+
+  return response.body.contains('Success');
 }

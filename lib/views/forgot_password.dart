@@ -65,8 +65,8 @@ class _MyHomePageState extends State<ForgotPasswordPage> {
           ),
           SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
           InkWell(
-            onTap: () {
-              _resetPassword();
+            onTap: () async {
+              await _resetPassword(context, pw1TextController.text, pw2TextController.text, emailTextController.text);
             },
             child: Container(
               width: double.infinity, height: 50,
@@ -241,8 +241,16 @@ class _MyHomePageState extends State<ForgotPasswordPage> {
 
 
 //Methods for page functionality
-void _resetPassword() {
+Future<void> _resetPassword(BuildContext context, String pw1, String pw2, String email) async {
   log('Tapped Reset Password');
+  if (pw1 != pw2) {
+    showSnackBar(context, 'New passwords must match!');
+    return;
+  }
+  loadingDialog(context);
+  bool res = await setNewPassword(email, encryptPassword(pw1));
+  Navigator.pop(context);
+
 }
 
 Future _sendVerificationLink(BuildContext context, String code, String email) async {
