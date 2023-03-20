@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:visitor_power_buddy/resources/widgets/shared_tools.dart';
 import 'package:visitor_power_buddy/views/create_booking.dart';
 import 'package:visitor_power_buddy/views/delivery_log.dart';
 import 'package:visitor_power_buddy/views/guest_pre_registration.dart';
@@ -11,6 +12,9 @@ import 'package:visitor_power_buddy/views/my_bookings.dart';
 import 'package:visitor_power_buddy/views/visitor_log.dart';
 import 'package:visitor_power_buddy/resources/styles/textstyles.dart';
 
+import '../../api/booking_apis.dart';
+import '../../api/env.dart';
+import '../../models/meeting_room.dart';
 import '../../views/create_booking.dart';
 import '../styles/colours.dart';
 
@@ -166,13 +170,16 @@ void _deliveryLogs(BuildContext context) {
   );
 }
 
-void _bookMeetingRoom(BuildContext context) {
+void _bookMeetingRoom(BuildContext context) async {
   log('Tapped Book Meeting Room');
+  loadingDialog(context);
+  List<MeetingRoom> meetingRooms = await getMeetingRooms(context, userID);
+  Navigator.pop(context);
   Navigator.push(
     context,
     PageTransition(
       type: PageTransitionType.leftToRight,
-      child: const BookMeeting(),
+      child: BookMeeting(meetingRooms: meetingRooms,),
     ),
   );
 }

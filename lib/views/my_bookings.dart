@@ -2,8 +2,13 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:visitor_power_buddy/api/booking_apis.dart';
+import 'package:visitor_power_buddy/models/meeting_room_booking.dart';
 import 'package:visitor_power_buddy/resources/styles/textstyles.dart';
+import 'package:visitor_power_buddy/resources/widgets/shared_tools.dart';
 
+import '../api/env.dart';
+import '../models/meeting_room.dart';
 import '../resources/styles/colours.dart';
 import '../resources/styles/formstyles.dart';
 import '../resources/widgets/drawer.dart';
@@ -21,6 +26,12 @@ class MyBookings extends StatefulWidget {
 class _MyBookingsState extends State<MyBookings> {
   GlobalKey<ScaffoldState> drawerKey = GlobalKey<ScaffoldState>();
 
+  TextEditingController searchController = TextEditingController();
+  DateTime searchDate = DateTime.now();
+  List<MeetingRoomBooking> bookings = [];
+  List<MeetingRoomBooking> searchResults = [];
+  late Future getAllBookingsFuture;
+
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -28,7 +39,60 @@ class _MyBookingsState extends State<MyBookings> {
         opacity = 1.0;
       });
     });
+    getAllBookingsFuture = getAllBookings();
+    searchController.addListener(onSearchChanged);
+    Future.delayed(Duration(milliseconds: 500), () {
+      setState(() {
+        searchResults = List.from(bookings);
+      });
+    });
     super.initState();
+  }
+
+  onSearchChanged() {
+    log('Search changed');
+    searchResultsList();
+  }
+
+  searchResultsList() {
+    List<MeetingRoomBooking> showResults = [];
+    if (searchController.text.isNotEmpty) {
+      for (var booking in bookings) {
+        var name = booking.booking_name.toLowerCase();
+
+        if (name.contains(searchController.text.toLowerCase())) {
+          showResults.add(booking);
+          log('Record added to list');
+        }
+      }
+    }
+    else {
+      showResults = List.from(bookings);
+    }
+
+    setState(() {
+      searchResults = showResults;
+    });
+  }
+
+  filterDate(DateTime date) {
+    searchResultsList();
+    List<MeetingRoomBooking> showResults = [];
+    for (var booking in searchResults) {
+      var day = booking.start_time.day;
+      var selDay = date.day;
+      log('Day: $day');
+      log('SelDay: $selDay');
+
+      if (day == selDay) {
+        log('Added visitor today');
+        showResults.add(booking);
+      }
+    }
+
+    setState(() {
+      searchResults = showResults;
+    });
   }
 
   Widget headRow() {
@@ -75,6 +139,12 @@ class _MyBookingsState extends State<MyBookings> {
   }
 
   Widget upcomingBookings() {
+    List<Widget> widgetList = [];
+    for (MeetingRoomBooking i in bookings) {
+      if (i.start_time.isAfter(DateTime.now())) {
+        widgetList.add(upcomingBookingCard(i));
+      }
+    }
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Column(
@@ -87,14 +157,10 @@ class _MyBookingsState extends State<MyBookings> {
           const SizedBox(height: 8.0),
           Container(
             height: 200,
-            child: ListView(
+            child: widgetList.isNotEmpty? ListView(
               padding: const EdgeInsets.all(8.0),
-              children: [
-                upcomingBookingCard(),
-                upcomingBookingCard(),
-                upcomingBookingCard(),
-              ],
-            ),
+              children: widgetList,
+            ) : Center(child: Text('Your upcoming bookings will appear here!', style: fieldHeadText)),
           )
         ],
       ),
@@ -105,9 +171,13 @@ class _MyBookingsState extends State<MyBookings> {
     return Row(
       children: [
         InkWell(
-          onTap: () {
+          onTap: () async {
             //Open date picker and change 'Today' to whatever the chosen date is
-
+            var picked = (await _openDatePicker(context))!;
+            setState(() {
+            searchDate = picked;
+            });
+            filterDate(searchDate);
           },
           child: Container(
             width: 125,
@@ -121,6 +191,7 @@ class _MyBookingsState extends State<MyBookings> {
         Expanded(
           child: TextFormField(
             decoration: visitorSearchStyle('Search for a booking...'),
+            controller: searchController,
           ),
         )
       ],
@@ -128,6 +199,12 @@ class _MyBookingsState extends State<MyBookings> {
   }
 
   Widget previousBookings() {
+    List<Widget> widgetList = [];
+    for (MeetingRoomBooking booking in bookings) {
+      if (booking.end_time.isBefore(DateTime.now())) {
+        widgetList.add(prevBookingsCard(booking));
+      }
+    }
     return Padding(
       padding: const EdgeInsets.only(left: 24.0, right: 24.0),
       child: Column(
@@ -157,23 +234,17 @@ class _MyBookingsState extends State<MyBookings> {
           Container(
             color: appBackgroundColour,
             height: MediaQuery.of(context).size.height * 0.3,
-            child: ListView(
+            child: widgetList.isNotEmpty? ListView(
               padding: const EdgeInsets.all(8.0),
-              children: [
-                prevBookingsCard(),
-                prevBookingsCard(),
-                prevBookingsCard(),
-                prevBookingsCard(),
-                prevBookingsCard()
-              ],
-            ),
+              children: widgetList,
+            ) : Center(child: Text('Your previous bookings will appear here!', style: fieldHeadText)),
           )
         ],
       ),
     );
   }
 
-  Widget upcomingBookingCard() {
+  Widget upcomingBookingCard(MeetingRoomBooking booking) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
       child: Container(
@@ -201,7 +272,7 @@ class _MyBookingsState extends State<MyBookings> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Group Conference 04',
+                  booking.booking_name,
                   style: titleHeadTextSmallBold,
                 ),
                 Text(
@@ -209,7 +280,7 @@ class _MyBookingsState extends State<MyBookings> {
                   style: formHintText,
                 ),
                 Text(
-                  'Main Conference Hall',
+                  booking.room_id.toString(),
                   style: titleHeadTextSmall,
                 ),
                 Text(
@@ -217,7 +288,7 @@ class _MyBookingsState extends State<MyBookings> {
                   style: formHintText,
                 ),
                 Text(
-                  'February 28, 09:45 AM',
+                  formatter.format(booking.start_time),
                   style: titleHeadTextSmall,
                 )
               ],
@@ -225,7 +296,7 @@ class _MyBookingsState extends State<MyBookings> {
             const Spacer(),
             InkWell(
               onTap: () {
-                _seeMoreBookingDetails(context);
+                _seeMoreBookingDetails(context, booking);
               },
               child: Icon(Icons.more_horiz, color: mainColour, size: 40,),
             ),
@@ -236,7 +307,7 @@ class _MyBookingsState extends State<MyBookings> {
     );
   }
 
-  Widget prevBookingsCard() {
+  Widget prevBookingsCard(MeetingRoomBooking booking) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
       child: Container(
@@ -264,7 +335,7 @@ class _MyBookingsState extends State<MyBookings> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Group Conference 04',
+                  booking.booking_name,
                   style: titleHeadTextSmallBold,
                 ),
                 Text(
@@ -272,7 +343,7 @@ class _MyBookingsState extends State<MyBookings> {
                   style: formHintText,
                 ),
                 Text(
-                  'Main Conference Hall',
+                  booking.room_id.toString(),
                   style: titleHeadTextSmall,
                 ),
                 Text(
@@ -280,7 +351,7 @@ class _MyBookingsState extends State<MyBookings> {
                   style: formHintText,
                 ),
                 Text(
-                  'February 28, 09:45 AM',
+                  formatter.format(booking.start_time),
                   style: titleHeadTextSmall,
                 )
               ],
@@ -288,7 +359,7 @@ class _MyBookingsState extends State<MyBookings> {
             const Spacer(),
             InkWell(
               onTap: () {
-                _seeMoreBookingDetails(context);
+                _seeMoreBookingDetails(context, booking);
               },
               child: Icon(Icons.more_horiz, color: mainColour, size: 40,),
             ),
@@ -309,23 +380,47 @@ class _MyBookingsState extends State<MyBookings> {
     );
   }
 
+  Widget testButton() {
+    return InkWell(
+      onTap: () {
+        log(bookings.length.toString());
+        log(searchResults.length.toString());
+      },
+      child: Text('Booking Length'),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: drawer(context),
-      key: drawerKey,
-      resizeToAvoidBottomInset: true,
-      floatingActionButton: newBookingFAB(),
-      body: Center(
-        child: ListView(
-          children: [
-            headRow(),
-            pageTitle(),
-            animateOpacity(upcomingBookings()),
-            animateOpacity(previousBookings()),
-          ],
-        ),
-      ),
+    return FutureBuilder(
+      future: getAllBookingsFuture,
+      builder: (context, AsyncSnapshot snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          if (snapshot.hasData) {
+            bookings = snapshot.data;
+          }
+          return Scaffold(
+            drawer: drawer(context),
+            key: drawerKey,
+            resizeToAvoidBottomInset: true,
+            floatingActionButton: newBookingFAB(),
+            body: Center(
+              child: ListView(
+                children: [
+                  headRow(),
+                  pageTitle(),
+                  animateOpacity(upcomingBookings()),
+                  animateOpacity(previousBookings()),
+                  testButton(),
+                ],
+              ),
+            ),
+          );
+        }
+        else {
+          return Center(child: const CircularProgressIndicator());
+        }
+      },
     );
   }
 }
@@ -336,13 +431,16 @@ void _openDrawer(GlobalKey<ScaffoldState> drawerKey) {
   drawerKey.currentState?.openDrawer();
 }
 
-void _tapFAB(BuildContext context) {
+void _tapFAB(BuildContext context) async {
   log('FAB tapped!');
+  loadingDialog(context);
+  List<MeetingRoom> meetingRooms = await getMeetingRooms(context, userID);
+  Navigator.pop(context);
   Navigator.push(
     context,
     PageTransition(
       type: PageTransitionType.leftToRight,
-      child: const BookMeeting(),
+      child: BookMeeting(meetingRooms: meetingRooms,),
     ),
   );
 }
@@ -351,9 +449,20 @@ void _seeAllPrevBookings() {
   log('See All Previous Bookings Tapped');
 }
 
-void _seeMoreBookingDetails(BuildContext context) {
+Future<DateTime?> _openDatePicker(BuildContext context) async {
+  log('Tapped Date Picker');
+  final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2023),
+      lastDate: DateTime(2025));
+
+  return picked;
+}
+
+void _seeMoreBookingDetails(BuildContext context, MeetingRoomBooking booking) {
   log('Tapped see more booking details');
-  showModal(context, true);
+  showModal(context, true, booking);
 }
 
 void _closeBookingModal(BuildContext context) {
@@ -383,7 +492,7 @@ Widget animateOpacity(Widget child) {
 }
 
 //Modal Menu
-void showModal(BuildContext context, bool returned) {
+void showModal(BuildContext context, bool returned, MeetingRoomBooking booking) {
   showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
     return StatefulBuilder(
         builder: (BuildContext context, StateSetter setModalState) {
@@ -438,7 +547,7 @@ void showModal(BuildContext context, bool returned) {
                                   children: [
                                     //Visitor Details
                                     Text(
-                                      'Group Conference 04',
+                                      booking.booking_name,
                                       style: titleHeadText,
                                     ),
                                     const SizedBox(height: 12.0),
@@ -447,7 +556,7 @@ void showModal(BuildContext context, bool returned) {
                                       style: formHintText,
                                     ),
                                     Text(
-                                      'Main Conference Hall',
+                                      booking.room_id.toString(),
                                       style: titleHeadTextSmall,
                                     ),
                                     const SizedBox(height: 8.0),
@@ -456,7 +565,7 @@ void showModal(BuildContext context, bool returned) {
                                       style: formHintText,
                                     ),
                                     Text(
-                                      'February 28, 09:45 AM',
+                                      formatter.format(booking.start_time),
                                       style: titleHeadTextSmall,
                                     ),
                                     const SizedBox(height: 8.0),
@@ -465,7 +574,7 @@ void showModal(BuildContext context, bool returned) {
                                       style: formHintText,
                                     ),
                                     Text(
-                                        '30 Minutes',
+                                        booking.end_time.difference(booking.start_time).toString(),
                                         style: titleHeadTextSmall
                                     ),
                                   ],
