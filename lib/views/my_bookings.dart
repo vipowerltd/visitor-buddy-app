@@ -380,16 +380,6 @@ class _MyBookingsState extends State<MyBookings> {
     );
   }
 
-  Widget testButton() {
-    return InkWell(
-      onTap: () {
-        log(bookings.length.toString());
-        log(searchResults.length.toString());
-      },
-      child: Text('Booking Length'),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -411,7 +401,6 @@ class _MyBookingsState extends State<MyBookings> {
                   pageTitle(),
                   animateOpacity(upcomingBookings()),
                   animateOpacity(previousBookings()),
-                  testButton(),
                 ],
               ),
             ),

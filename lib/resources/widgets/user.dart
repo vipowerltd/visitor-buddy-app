@@ -19,34 +19,41 @@ Widget userWidget() {
         return CircularProgressIndicator();
       }
       else {
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              height: 50,
-              child: CircleAvatar(
-                radius: 25,
-                backgroundImage: snapshot.data['image'] != null? NetworkImage(
-                  snapshot.data['image'],
-                ) : Image.asset('assets/images/default_user.png').image,
-              )
-            ),
-            const SizedBox(width: 12.0,),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Hello',
-                  style: titleHeadTextLight,
-                ),
-                Text(
-                  snapshot.data['name'],
-                  style: titleHeadText,
+        return Container(
+          width: MediaQuery.of(context).size.width * 0.5,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                height: 50,
+                child: CircleAvatar(
+                  radius: 25,
+                  backgroundImage: snapshot.data['image'] != null? NetworkImage(
+                    snapshot.data['image'],
+                  ) : Image.asset('assets/images/default_user.png').image,
                 )
-              ],
-            )
-          ],
+              ),
+              const SizedBox(width: 12.0,),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Hello',
+                    style: titleHeadTextLight,
+                  ),
+                  Container(
+                    width: MediaQuery.of(context).size.width * 0.30,
+                    child: Text(
+                      snapshot.data['name'],
+                      style: titleHeadText,
+                      overflow: TextOverflow.ellipsis
+                    ),
+                  )
+                ],
+              )
+            ],
+          ),
         );
       }
     },
