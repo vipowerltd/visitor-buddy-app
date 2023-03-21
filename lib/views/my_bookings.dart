@@ -200,7 +200,7 @@ class _MyBookingsState extends State<MyBookings> {
 
   Widget previousBookings() {
     List<Widget> widgetList = [];
-    for (MeetingRoomBooking booking in bookings) {
+    for (MeetingRoomBooking booking in searchResults) {
       if (booking.end_time.isBefore(DateTime.now())) {
         widgetList.add(prevBookingsCard(booking));
       }
