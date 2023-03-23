@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:visitor_power_buddy/api/account_management_apis.dart';
 import 'package:visitor_power_buddy/api/email.dart';
 import 'package:visitor_power_buddy/resources/styles/colours.dart';
@@ -8,6 +9,7 @@ import 'package:visitor_power_buddy/resources/styles/formstyles.dart';
 import 'package:visitor_power_buddy/resources/styles/textstyles.dart';
 
 import '../resources/widgets/shared_tools.dart';
+import 'login_page.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key,});
@@ -53,6 +55,7 @@ class _MyHomePageState extends State<ForgotPasswordPage> {
           TextFormField(
             decoration: textFormStyle('New Password'),
             controller: pw1TextController,
+            obscureText: true,
           ),
           SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
           Text(
@@ -62,6 +65,7 @@ class _MyHomePageState extends State<ForgotPasswordPage> {
           TextFormField(
             decoration: textFormStyle('Confirm New Password'),
             controller: pw2TextController,
+            obscureText: true,
           ),
           SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
           InkWell(
@@ -250,6 +254,19 @@ Future<void> _resetPassword(BuildContext context, String pw1, String pw2, String
   loadingDialog(context);
   bool res = await setNewPassword(email, encryptPassword(pw1));
   Navigator.pop(context);
+  if (res) {
+    showSnackBar(context, 'Password reset successfully!');
+    Navigator.push(
+      context,
+      PageTransition(
+        type: PageTransitionType.leftToRight,
+        child: const LoginPage(),
+      ),
+    );
+  } else {
+    showSnackBar(context, 'An error occurred, please try again.');
+    return;
+  }
 
 }
 

@@ -280,7 +280,7 @@ class _MyBookingsState extends State<MyBookings> {
                   style: formHintText,
                 ),
                 Text(
-                  booking.room_id.toString(),
+                  booking.room_name,
                   style: titleHeadTextSmall,
                 ),
                 Text(
@@ -343,7 +343,7 @@ class _MyBookingsState extends State<MyBookings> {
                   style: formHintText,
                 ),
                 Text(
-                  booking.room_id.toString(),
+                  booking.room_name,
                   style: titleHeadTextSmall,
                 ),
                 Text(
@@ -545,7 +545,7 @@ void showModal(BuildContext context, bool returned, MeetingRoomBooking booking) 
                                       style: formHintText,
                                     ),
                                     Text(
-                                      booking.room_id.toString(),
+                                      booking.room_name,
                                       style: titleHeadTextSmall,
                                     ),
                                     const SizedBox(height: 8.0),
@@ -563,7 +563,7 @@ void showModal(BuildContext context, bool returned, MeetingRoomBooking booking) 
                                       style: formHintText,
                                     ),
                                     Text(
-                                        booking.end_time.difference(booking.start_time).toString(),
+                                        '${booking.end_time.difference(booking.start_time).inMinutes} minutes',
                                         style: titleHeadTextSmall
                                     ),
                                   ],

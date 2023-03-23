@@ -6,12 +6,13 @@ class MeetingRoomBooking {
   final int user_id;
   final DateTime booked_on;
   final String booking_name;
+  final String room_name;
 
   MeetingRoomBooking({
     required this.booking_id, required this.start_time,
     required this.end_time, required this.room_id,
     required this.user_id, required this.booked_on,
-    required this.booking_name,
+    required this.booking_name, required this.room_name,
   });
 
   factory MeetingRoomBooking.fromJson(Map<String, dynamic> json) {
@@ -23,6 +24,7 @@ class MeetingRoomBooking {
       user_id: json['user_id'],
       booked_on: DateTime.parse(json['booked_on']),
       booking_name: json['booking_name'],
+      room_name: json['room_name'],
     );
   }
 

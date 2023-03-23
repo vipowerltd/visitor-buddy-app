@@ -235,7 +235,8 @@ class _BookMeetingState extends State<BookMeeting> {
         booking_id: generateRandomString(), start_time: finalDate,
         end_time: endDate, room_id: selectedRoom.room_id,
         user_id: int.parse(userID), booked_on: DateTime.now(),
-        booking_name: meetingNameController.text
+        booking_name: meetingNameController.text,
+        room_name: '',
     );
     addNewBooking(context, booking);
   }
